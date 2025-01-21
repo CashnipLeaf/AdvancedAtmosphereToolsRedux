@@ -87,8 +87,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="API.cs" />
-    <Compile Include="PublicUtils.cs" />
-    <Compile Include="AtmosphereDataCleanup.cs" />
+    <Compile Include="AtmoToolsReduxUtils.cs" />
+    <Compile Include="AtmoToolsStartup.cs" />
     <Compile Include="BaseClasses\BinaryWindData.cs" />
     <Compile Include="AtmosphereData.cs" />
     <Compile Include="BaseClasses\BinaryWindDataLoader.cs" />

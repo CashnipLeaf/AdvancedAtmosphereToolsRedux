@@ -83,7 +83,7 @@ namespace AdvancedAtmosphereToolsRedux
         #region aerodynamics
         static void NewUpdateAerodynamics(ModularFlightIntegrator fi, Part part)
         {
-            VesselHandler VH = FlightSceneHandler.Instance.GetVesselHandler(fi.Vessel);
+            VesselHandler VH = FlightSceneHandler.GetVesselHandler(fi.Vessel);
 
             //recalculate part static pressure
             double altitudeAtPos = FlightGlobals.getAltitudeAtPos((Vector3d)part.partTransform.position, fi.CurrentMainBody);
@@ -106,7 +106,7 @@ namespace AdvancedAtmosphereToolsRedux
         //Takes advantage of CalculateAerodynamicArea()'s placement inside UpdateAerodynamics() to inject a new drag vector into the part before UpdateAerodynamics() uses to calculate anything.
         static double AerodynamicAreaOverride(ModularFlightIntegrator fi, Part part)
         {
-            VesselHandler VH = FlightSceneHandler.Instance.GetVesselHandler(fi.Vessel);
+            VesselHandler VH = FlightSceneHandler.GetVesselHandler(fi.Vessel);
             Vector3 windvec = VH != null ? VH.InternalAppliedWind : Vector3.zero;
             Vector3 oceancurrentvec = VH != null ? VH.InternalAppliedOceanCurrent : Vector3.zero;
             float submerged = (float)part.submergedPortion;
@@ -164,7 +164,7 @@ namespace AdvancedAtmosphereToolsRedux
         #region thermodynamics
         static void CalculateConstantsAtmosphereOverride(ModularFlightIntegrator fi)
         {
-            VesselHandler VH = FlightSceneHandler.Instance.GetVesselHandler(fi.Vessel);
+            VesselHandler VH = FlightSceneHandler.GetVesselHandler(fi.Vessel);
             Vector3 windvec = VH != null ? VH.InternalAppliedWind : Vector3.zero;
             if (windvec.IsFinite() && !Mathf.Approximately(windvec.magnitude, 0.0f))
             {
@@ -236,7 +236,7 @@ namespace AdvancedAtmosphereToolsRedux
 
         static void CalcPressureOverride(ModularFlightIntegrator fi)
         {
-            VesselHandler VH = FlightSceneHandler.Instance.GetVesselHandler(fi.Vessel);
+            VesselHandler VH = FlightSceneHandler.GetVesselHandler(fi.Vessel);
             if (VH == null)
             {
                 fi.BaseFICalculatePressure();
@@ -265,7 +265,7 @@ namespace AdvancedAtmosphereToolsRedux
     {
         static void Prefix(ref Vector3 pointVelocity, ModuleLiftingSurface __instance)
         {
-            VesselHandler VH = FlightSceneHandler.Instance.GetVesselHandler(__instance.part.vessel);
+            VesselHandler VH = FlightSceneHandler.GetVesselHandler(__instance.part.vessel);
             if (!pointVelocity.IsFinite() || VH == null || Settings.FAR_Exists)
             {
                 return;
@@ -288,7 +288,7 @@ namespace AdvancedAtmosphereToolsRedux
         static bool Prefix(ModuleResourceIntake __instance) //This is an abomination. Please msg me if you have a cleaner implementation.
         {
             //fall back to stock behavior as a failsafe
-            VesselHandler VH = FlightSceneHandler.Instance.GetVesselHandler(__instance.part.vessel);
+            VesselHandler VH = FlightSceneHandler.GetVesselHandler(__instance.part.vessel);
             if (__instance == null || VH == null)
             {
                 return true;
@@ -394,7 +394,7 @@ namespace AdvancedAtmosphereToolsRedux
     {
         public static void Postfix(ref bool __result, KerbalEVA __instance, ref string ___helmetUnsafeReason)
         {
-            VesselHandler VH = FlightSceneHandler.Instance.GetVesselHandler(__instance.part.vessel);
+            VesselHandler VH = FlightSceneHandler.GetVesselHandler(__instance.part.vessel);
             if (__result && VH != null)
             {
                 bool istoxic = VH.toxicAtmosphere;
@@ -415,7 +415,7 @@ namespace AdvancedAtmosphereToolsRedux
     {
         public static void Postfix(ref bool __result, KerbalEVA __instance, ref string ___helmetUnsafeReason)
         {
-            VesselHandler VH = FlightSceneHandler.Instance.GetVesselHandler(__instance.part.vessel);
+            VesselHandler VH = FlightSceneHandler.GetVesselHandler(__instance.part.vessel);
             if (__result && VH != null)
             {
                 bool istoxic = VH.toxicAtmosphere;
@@ -436,7 +436,7 @@ namespace AdvancedAtmosphereToolsRedux
     {
         public static void Postfix(ref bool __result, KerbalEVA __instance, ref string ___helmetUnsafeReason)
         {
-            VesselHandler VH = FlightSceneHandler.Instance.GetVesselHandler(__instance.part.vessel);
+            VesselHandler VH = FlightSceneHandler.GetVesselHandler(__instance.part.vessel);
             if (__result && VH != null)
             {
                 bool istoxic = VH.toxicAtmosphere;

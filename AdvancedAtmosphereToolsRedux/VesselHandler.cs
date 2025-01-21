@@ -5,6 +5,8 @@ namespace AdvancedAtmosphereToolsRedux
 {
     internal sealed class VesselHandler : VesselModule
     {
+        internal Matrix4x4 LocalToWorld = Matrix4x4.identity;
+        
         internal Vector3 RawWind = Vector3.zero;
         internal Vector3 AppliedWind = Vector3.zero;
 
@@ -72,7 +74,76 @@ namespace AdvancedAtmosphereToolsRedux
         //TODO: implement
         void FixedUpdate()
         {
+            if (!HighLogic.LoadedSceneIsFlight)
+            {
+                return;
+            }
+            RawWind.Zero();
+            AppliedWind.Zero();
+            normalwind.Zero();
+            transformedwind.Zero();
+            InternalAppliedWind.Zero();
 
+            RawOceanCurrent.Zero();
+            AppliedOceanCurrent.Zero();
+            InternalAppliedOceanCurrent.Zero();
+
+            toxicAtmosphere = false;
+
+            LocalToWorld.SetColumn(0, (Vector3)vessel.north);
+            LocalToWorld.SetColumn(1, (Vector3)vessel.upAxis);
+            LocalToWorld.SetColumn(2, (Vector3)vessel.east);
+            double longitude = vessel.longitude;
+            double latitude = vessel.latitude;
+            double altitude = vessel.altitude;
+            CelestialBody mainBody = vessel.mainBody;
+
+            double trueAnomaly;
+            try
+            {
+                CelestialBody starref = AtmoToolsReduxUtils.GetLocalPlanet(mainBody);
+                trueAnomaly = ((starref.orbit.trueAnomaly * UtilMath.Rad2Deg) + 360.0) % 360.0;
+            }
+            catch
+            {
+                trueAnomaly = 0.0;
+            }
+
+            double eccentricitybias;
+            try
+            {
+                CelestialBody starref = AtmoToolsReduxUtils.GetLocalPlanet(mainBody);
+                if (starref.orbit.eccentricity != 0.0)
+                {
+                    eccentricitybias = (starref.orbit.radius - starref.orbit.PeR) / (starref.orbit.ApR - starref.orbit.PeR);
+                }
+                else
+                {
+                    eccentricitybias = 0.0;
+                }
+            }
+            catch
+            {
+                eccentricitybias = 0.0;
+            }
+
+            DisableMultiplier = vessel != null && vessel.LandedOrSplashed && Settings.DisableWindWhenStationary ? (float)UtilMath.Lerp(0.0, 1.0, (vessel.srfSpeed - 5.0) * 0.2) : 1.0f;
+
+            AtmosphereData bodydata = vessel.mainBody.gameObject.GetComponent<AtmosphereData>();
+            if (bodydata != null)
+            {
+                //TODO: implement
+            }
+            else
+            {
+                Pressure = mainBody.GetPressure(altitude);
+                FIPressureMultiplier = 1.0;
+                FlightIntegrator FI = vessel.GetComponent<FlightIntegrator>();
+                double temperatureoffset = FI != null ? FI.atmosphereTemperatureOffset : 0.0;
+                Temperature = mainBody.GetFullTemperature(altitude, temperatureoffset);
+                MolarMass = mainBody.atmosphereMolarMass;
+                AdiabaticIndex = mainBody.atmosphereAdiabaticIndex;
+            }
         }
 
         void OnDestroy()

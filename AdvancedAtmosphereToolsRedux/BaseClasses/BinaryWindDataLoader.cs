@@ -10,12 +10,10 @@ namespace AdvancedAtmosphereToolsRedux.BaseClasses
     {
         public BinaryWindData Value { get; set; }
 
-        private CelestialBody body;
-
         public BinaryWindDataLoader()
         {
-            body = generatedBody.celestialBody;
-            AtmosphereData data = PublicUtils.GetAtmosphereData(body);
+            CelestialBody body = generatedBody.celestialBody;
+            AtmosphereData data = AtmoToolsReduxUtils.GetAtmosphereData(body);
 
             Value = new BinaryWindData();
             data.AddWindProvider(Value);

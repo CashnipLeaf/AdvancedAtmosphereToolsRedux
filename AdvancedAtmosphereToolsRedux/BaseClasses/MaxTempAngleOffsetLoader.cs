@@ -7,13 +7,12 @@ namespace AdvancedAtmosphereToolsRedux.BaseClasses
     [ParserTargetExternal("Body", "Atmosphere", "Kopernicus")]
     public class MaxTempAngleOffsetLoader : BaseLoader
     {
-        private CelestialBody body;
         private AtmosphereData data;
 
         public MaxTempAngleOffsetLoader()
         {
-            body = generatedBody.celestialBody;
-            data = PublicUtils.GetAtmosphereData(body);
+            CelestialBody body = generatedBody.celestialBody;
+            data = AtmoToolsReduxUtils.GetAtmosphereData(body);
         }
 
         [ParserTarget("maxTempAngleOffset", Optional = true)]

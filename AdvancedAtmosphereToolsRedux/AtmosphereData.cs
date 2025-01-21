@@ -31,7 +31,7 @@ namespace AdvancedAtmosphereToolsRedux
             flatAdiabaticIndexModifiers = new List<IFlatAdiabaticIndexModifier>();
         }
 
-        //excessive use of LINQ
+        //excessive use of LINQ.
         public void CleanupModifiers()
         {
             IEnumerable<IWindProvider> WP = from provider in windProviders where ((AtmosphereModifier)provider).Initialized select provider;
@@ -373,7 +373,7 @@ namespace AdvancedAtmosphereToolsRedux
             if (body != FlightIntegrator.sunBody)
             {
                 Vector3d position = ScaledSpace.LocalToScaledSpace(body.GetWorldSurfacePosition(latitude, longitude, altitude));
-                CelestialBody localstar = PublicUtils.GetLocalStar(body);
+                CelestialBody localstar = AtmoToolsReduxUtils.GetLocalStar(body);
                 if (localstar != null)
                 {
                     localstar = FlightIntegrator.sunBody;
@@ -421,7 +421,7 @@ namespace AdvancedAtmosphereToolsRedux
                 }
 
                 double latitudebias = 0.0;
-                if (baseTemperature != null && !baseTemperature.DisableLatitudeBias)
+                if (baseTemperature == null || !baseTemperature.DisableLatitudeBias)
                 {
                     double fractionallatitudebiasmodifier = 1.0;
                     foreach (IFractionalLatitudeBiasModifier mod in fractionalLatitudeBiasModifiers)
@@ -439,7 +439,7 @@ namespace AdvancedAtmosphereToolsRedux
                 }
 
                 double latitudesunmult = 0.0;
-                if (baseTemperature != null && !baseTemperature.DisableLatitudeSunMult)
+                if (baseTemperature == null || !baseTemperature.DisableLatitudeSunMult)
                 {
                     double fractionallatitudesunmultmodifier = 1.0;
                     foreach (IFractionalLatitudeSunMultModifier mod in fractionalLatitudeSunMultModifiers)
@@ -457,7 +457,7 @@ namespace AdvancedAtmosphereToolsRedux
                 }
 
                 double axialsunbias = 0.0;
-                if (baseTemperature != null && !baseTemperature.DisableAxialSunBias)
+                if (baseTemperature == null || !baseTemperature.DisableAxialSunBias)
                 {
                     double fractionalaxialsunbiasmodifier = 1.0;
                     foreach (IFractionalAxialSunBiasModifier mod in fractionalAxialSunBiasModifiers)
@@ -475,7 +475,7 @@ namespace AdvancedAtmosphereToolsRedux
                 }
 
                 double eccentricitybias = 0.0;
-                if (baseTemperature != null && !baseTemperature.DisableEccentricityBias)
+                if (baseTemperature == null || !baseTemperature.DisableEccentricityBias)
                 {
                     double fractionaleccentricitybiasmodifier = 1.0;
                     foreach (IFractionalEccentricityBiasModifier mod in fractionalEccentricityBiasModifiers)
@@ -586,7 +586,7 @@ namespace AdvancedAtmosphereToolsRedux
 
         public double GetAdiabaticIndex(double longitude, double latitude, double altitude, double time, double trueAnomaly, double eccentricity)
         {
-            double baseadiabaticindex = baseAdiabaticIndex != null ? baseAdiabaticIndex.GetBaseAdiabaticIndex(longitude, latitude, altitude, time, trueAnomaly, eccentricity) : body.atmosphereMolarMass;
+            double baseadiabaticindex = baseAdiabaticIndex != null ? baseAdiabaticIndex.GetBaseAdiabaticIndex(longitude, latitude, altitude, time, trueAnomaly, eccentricity) : body.atmosphereAdiabaticIndex;
             double flatmodifier = 0.0;
             foreach (IFlatAdiabaticIndexModifier mod in flatAdiabaticIndexModifiers)
             {
@@ -623,8 +623,9 @@ namespace AdvancedAtmosphereToolsRedux
             }
         }
 
-        public bool CheckToxicAtmosphere(double longitude, double latitude, double altitude, double time, double trueAnomaly, double eccentricity)
+        public bool CheckToxicAtmosphere(double longitude, double latitude, double altitude, double time, double trueAnomaly, double eccentricity, out string toxicatmomessage)
         {
+            toxicatmomessage = (toxicAtmosphereIndicator != null) ? toxicAtmosphereIndicator.ToxicAtmosphereMessage : string.Empty;
             return (toxicAtmosphereIndicator != null) && toxicAtmosphereIndicator.IsAtmosphereToxic(longitude, latitude, altitude, time, trueAnomaly, eccentricity);
         }
         #endregion

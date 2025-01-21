@@ -1,9 +1,10 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace AdvancedAtmosphereToolsRedux
 {
     [KSPAddon(KSPAddon.Startup.MainMenu,true)]
-    internal class AtmosphereDataCleanup : MonoBehaviour
+    internal class AtmoToolsStartup : MonoBehaviour
     {
         //remove any uninitialized modifiers as they could cause issues that I'd rather not deal with.
         void Awake()
@@ -19,6 +20,7 @@ namespace AdvancedAtmosphereToolsRedux
                 }
             }
             Utils.LogInfo("AtmosphereModifier Cleanup Complete.");
+            FlightSceneHandler.VesselHandlerCache = new Dictionary<Vessel, VesselHandler>();
             Destroy(this);
         }
     }

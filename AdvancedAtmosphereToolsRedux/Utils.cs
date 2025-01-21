@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace AdvancedAtmosphereToolsRedux
@@ -43,5 +39,41 @@ namespace AdvancedAtmosphereToolsRedux
             }
             return newarray;
         }
+
+        public static float BiLerp(float first1, float second1, float first2, float second2, float by1, float by2)
+        {
+            return Mathf.Lerp(Mathf.Lerp(first1, second1, by1), Mathf.Lerp(first2, second2, by1), by2);
+        }
+
+        //allow for altitude spacing based on some factor
+        public static double ScaleAltitude(double nX, double xBase, int upperbound, out int int1, out int int2)
+        {
+            nX = UtilMath.Clamp01(nX);
+            double z = (xBase <= 1.0 ? nX : ((Math.Pow(xBase, -nX * upperbound) - 1) / (Math.Pow(xBase, -1 * upperbound) - 1))) * upperbound;
+            int1 = Clamp((int)Math.Floor(z), 0, upperbound); //layer 1
+            int2 = Clamp(int1 + 1, 0, upperbound); //layer 2
+            return nX >= 1d ? 1d : UtilMath.Clamp01(z - Math.Truncate(z));
+        }
+
+        public static double InterpolatePressure(double first, double second, double by)
+        {
+            if (first < 0.0 || second < 0.0) //negative values will break the logarithm, so they are not allowed.
+            {
+                throw new ArgumentOutOfRangeException();
+            }
+            if (first <= float.Epsilon || second <= float.Epsilon)
+            {
+                return UtilMath.Lerp(first, second, by);
+            }
+            double scalefactor = Math.Log(first / second);
+            if (double.IsNaN(scalefactor))
+            {
+                throw new NotFiniteNumberException();
+            }
+            return first * Math.Pow(Math.E, -1 * UtilMath.Lerp(0.0, UtilMath.Clamp(scalefactor, float.MinValue, float.MaxValue), by));
+        }
+
+        //Apparently no such function exists for integers in either UtilMath or Mathf. Why?
+        public static int Clamp(int value, int min, int max) => Math.Min(Math.Max(value, min), max);
     }
 }

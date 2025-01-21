@@ -9,12 +9,13 @@ namespace AdvancedAtmosphereToolsRedux
     using WindDelegate = Func<CelestialBody, Part, Vector3, Vector3>;
     using PropertyDelegate = Func<CelestialBody, Vector3d, double, double>;
 
+    //TODO: add UI handler stuffs
     [KSPAddon(KSPAddon.Startup.Flight, false)]
     internal sealed class FlightSceneHandler : MonoBehaviour
     {
         internal static FlightSceneHandler Instance { get; private set; }
 
-        internal Dictionary<Vessel, VesselHandler> VesselHandlerCache;
+        internal static Dictionary<Vessel, VesselHandler> VesselHandlerCache;
 
         void Awake()
         {
@@ -22,7 +23,6 @@ namespace AdvancedAtmosphereToolsRedux
             {
                 Utils.LogInfo("Initializing Flight Handler.");
                 Instance = this;
-                VesselHandlerCache = new Dictionary<Vessel, VesselHandler>();
 
                 if (Settings.FAR_Exists)
                 {
@@ -47,7 +47,7 @@ namespace AdvancedAtmosphereToolsRedux
         }
 
         //cache the vessel handlers to speed things up
-        internal VesselHandler GetVesselHandler(Vessel v)
+        internal static VesselHandler GetVesselHandler(Vessel v)
         {
             if (!VesselHandlerCache.ContainsKey(v))
             {
