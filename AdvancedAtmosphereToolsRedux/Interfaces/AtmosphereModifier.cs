@@ -9,6 +9,8 @@ namespace AdvancedAtmosphereToolsRedux.Interfaces
 {
     public abstract class AtmosphereModifier
     {
+        public CelestialBody Body;
+        public bool Initialized = false;
         public virtual void Initialize() { }
     }
 }

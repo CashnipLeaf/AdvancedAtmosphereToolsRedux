@@ -1,23 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using UnityEngine;
 
 namespace AdvancedAtmosphereToolsRedux.Interfaces
 {
-    // TODO: Finish
     public interface IWindProvider
     {
-
+        Vector3 GetWindVector(double longitude, double latitude, double altitude, double time, double trueAnomaly, double eccentricity);
     }
 
     public interface IOceanCurrentProvider
     {
-
+        Vector3 GetOceanCurrentVector(double longitude, double latitude, double altitude, double time, double trueAnomaly, double eccentricity);
     }
 
-    public interface IBasePresssure
+    public interface IBasePressure
     {
         double GetBasePressure(double longitude, double latitude, double altitude, double time, double trueAnomaly, double eccentricity);
     }
@@ -36,7 +32,7 @@ namespace AdvancedAtmosphereToolsRedux.Interfaces
     {
         bool DisableLatitudeBias { get; set; }
         bool DisableLatitudeSunMult { get; set; }
-        bool DisableAxialSunBias {  get; set; }
+        bool DisableAxialSunBias { get; set; }
         bool DisableEccentricityBias { get; set; }
         double GetBaseTemperature(double longitude, double latitude, double altitude, double time, double trueAnomaly, double eccentricity);
     }
@@ -58,7 +54,7 @@ namespace AdvancedAtmosphereToolsRedux.Interfaces
 
     public interface IFractionalLatitudeSunMultModifier 
     {
-        double GetFractionalLatitudeSumMultModifier(double longitude, double latitude, double altitude, double time, double trueAnomaly, double eccentricity);
+        double GetFractionalLatitudeSunMultModifier(double longitude, double latitude, double altitude, double time, double trueAnomaly, double eccentricity);
     }
 
     public interface IFractionalAxialSunBiasModifier
@@ -93,6 +89,7 @@ namespace AdvancedAtmosphereToolsRedux.Interfaces
 
     public interface IToxicAtmosphereIndicator
     {
+        string ToxicAtmosphereMessage { get; set; }
         bool IsAtmosphereToxic(double longitude, double latitude, double altitude, double time, double trueAnomaly, double eccentricity);
     }
 }
