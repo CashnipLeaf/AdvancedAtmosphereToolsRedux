@@ -6,15 +6,78 @@ namespace AdvancedAtmosphereToolsRedux
     //utility functions for anyone to use
     public static class AtmoToolsReduxUtils
     {
-        public static AtmosphereData GetAtmosphereData(CelestialBody body)
+        //--------------------GENERAL UTILITIES---------------------------
+        public const double WaterBulkModulus = 2.2E+6; //in kPa
+        public const double DefaultMaxTempAngleOffset = 45.0; //in degrees
+
+        public static double GetTemperatureAtPosition(CelestialBody body, double longitude, double latitude, double altitude, double trueAnomaly, double eccentricity)
         {
-            AtmosphereData data = body.gameObject.GetComponent<AtmosphereData>();
-            if (data != null)
+            GetTemperatureWithComponents(body, longitude, latitude, altitude, trueAnomaly, eccentricity, out double basetemp, out double latbias, out double latsunmult, out double axialbias, out double eccentricitybias);
+            return basetemp + ((latbias + latsunmult + axialbias + eccentricitybias) * (double)body.atmosphereTemperatureSunMultCurve.Evaluate((float)altitude));
+        }
+
+        public static void GetTemperatureWithComponents(CelestialBody body, double longitude, double latitude, double altitude, double trueAnomaly, double eccentricity, out double basetemp, out double latbias, out double latsunmult, out double axialbias, out double eccentricitybias)
+        {
+            basetemp = body.GetTemperature(altitude);
+            latbias = latsunmult = axialbias = eccentricitybias = 0.0;
+            if (body != FlightIntegrator.sunBody)
             {
-                data = body.gameObject.AddComponent<AtmosphereData>();
-                data.Setup(body);
+                Vector3d position = ScaledSpace.LocalToScaledSpace(body.GetWorldSurfacePosition(latitude, longitude, altitude));
+                CelestialBody localstar = GetLocalStar(body);
+                if (localstar != null)
+                {
+                    localstar = FlightIntegrator.sunBody;
+                }
+                Vector3d localstarposition = localstar.scaledBody.transform.position;
+                Vector3d sunVector = localstarposition - position;
+                double magnitude = sunVector.magnitude;
+                if (magnitude == 0.0)
+                {
+                    magnitude = 1.0;
+                }
+                Vector3d normalSunVector = sunVector / magnitude;
+                Vector3d up = body.bodyTransform.up;
+                Vector3d upAxis = body.GetRelSurfaceNVector(latitude, longitude);
+
+                double d1 = (double) Vector3.Dot((Vector3)normalSunVector, up);
+                double d2 = (double) Vector3.Dot(up, (Vector3) upAxis);
+                double d3 = Math.Acos(d2);
+                if (double.IsNaN(d3))
+                {
+                    d3 = d2 >= 0.0 ? 0.0 : Math.PI;
+                }
+                double d4 = Math.Acos(d1);
+                if (double.IsNaN(d4))
+                {
+                    d4 = d1 >= 0.0 ? 0.0 : Math.PI;
+                }
+                double t1 = (1.0 + Math.Cos(d4 - d3)) * 0.5;
+                double num1 = (1.0 + Math.Cos(d4 + d3)) * 0.5;
+
+                double sunmult = (1.0 + (double)Vector3.Dot((Vector3)normalSunVector, Quaternion.AngleAxis(body.MaxTempAngleOffset() * Mathf.Sign((float)body.rotationPeriod), up) * (Vector3)upAxis)) * 0.5;
+                double num8 = t1 - num1;
+                double num9;
+                if (num8 > 0.001)
+                {
+                    num9 = (sunmult - num1) / num8;
+                    if (double.IsNaN(num9))
+                    {
+                        num9 = sunmult > 0.5 ? 1.0 : 0.0;
+                    }
+                }
+                else
+                {
+                    num9 = num1 + num8 * 0.5;
+                }
+
+                latbias = (double)body.latitudeTemperatureBiasCurve.Evaluate((float)Math.Abs(latitude));
+
+                latsunmult = (double)body.latitudeTemperatureSunMultCurve.Evaluate((float)Math.Abs(latitude)) * num9;
+
+                axialbias = (double)body.axialTemperatureSunBiasCurve.Evaluate((float)trueAnomaly) * (double)body.axialTemperatureSunMultCurve.Evaluate((float)Math.Abs(latitude));
+
+                eccentricitybias = (double)body.eccentricityTemperatureBiasCurve.Evaluate((float)eccentricity);
             }
-            return data;
         }
 
         //--------------------LOCATION UTILITIES---------------------------
@@ -95,6 +158,16 @@ namespace AdvancedAtmosphereToolsRedux
             return body;
         }
 
-        
+        //Get the true anomaly (0-360 degrees) and eccentricity bias (0-1 where 1 is apoapsis and 0 is periapsis) of a body's orbit around its parent star
+        public static void GetTrueAnomalyEccentricity(CelestialBody body, out double trueAnomaly, out double eccentricitybias)
+        {
+            trueAnomaly = eccentricitybias = 0.0;
+            CelestialBody starref = GetLocalPlanet(body);
+            if (starref != null && starref != FlightIntegrator.sunBody && starref.orbit != null)
+            {
+                trueAnomaly = ((starref.orbit.trueAnomaly * UtilMath.Rad2Deg) + 360.0) % 360.0;
+                eccentricitybias = starref.orbit.eccentricity != 0.0 ? (starref.orbit.radius - starref.orbit.PeR) / (starref.orbit.ApR - starref.orbit.PeR) : 0.0;
+            }
+        }
     }
 }

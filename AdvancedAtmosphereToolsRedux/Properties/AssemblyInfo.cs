@@ -39,4 +39,4 @@ using System.Runtime.InteropServices;
 [assembly: KSPAssemblyDependency("ModularFlightIntegrator", 1, 0)]
 
 [assembly: KSPAssemblyDependency("Kopernicus", 1, 0)]
-[assembly: KSPAssemblyDependency("0Harmony", 1, 0)]
+[assembly: KSPAssemblyDependency("0Harmony", 0, 0)]

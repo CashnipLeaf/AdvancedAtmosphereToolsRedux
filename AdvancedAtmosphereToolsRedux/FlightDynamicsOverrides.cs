@@ -2,7 +2,6 @@
 using UnityEngine;
 using ModularFI;
 using HarmonyLib;
-using KSP.Localization;
 using System.Reflection;
 
 namespace AdvancedAtmosphereToolsRedux
@@ -14,6 +13,7 @@ namespace AdvancedAtmosphereToolsRedux
 
         void Start()
         {
+            CheckFAR();
             if (!registeredoverrides) //make sure that things dont get patched more than once. That would be very bad.
             {
                 Utils.LogInfo("Initializing Flight Dynamics Overrides.");
@@ -27,29 +27,29 @@ namespace AdvancedAtmosphereToolsRedux
                         if (ModularFlightIntegrator.RegisterUpdateAerodynamicsOverride(NewUpdateAerodynamics))
                         {
                             ModularFlightIntegrator.RegisterCalculateAerodynamicAreaOverride(AerodynamicAreaOverride);
-                            Utils.LogInfo("Successfully registered AAT:Redux's Aerodynamics Overrides with ModularFlightIntegrator.");
+                            Utils.LogInfo("Successfully registered AdvAtmoTools:Redux's Aerodynamics Overrides with ModularFlightIntegrator.");
                         }
                         else
                         {
-                            Utils.LogWarning("Unable to register AAT:Redux's Aerodynamics Override with ModularFlightIntegrator.");
+                            Utils.LogWarning("Unable to register AdvAtmoTools:Redux's Aerodynamics Override with ModularFlightIntegrator.");
                         }
                     }
                     if (ModularFlightIntegrator.RegisterCalculatePressureOverride(CalcPressureOverride))
                     {
-                        Utils.LogInfo("Successfully registered AAT:Redux's Pressure Override with ModularFlightIntegrator.");
+                        Utils.LogInfo("Successfully registered AdvAtmoTools:Redux's Pressure Override with ModularFlightIntegrator.");
                     }
                     else
                     {
-                        Utils.LogWarning("Unable to register AAT:Redux's Pressure Override with ModularFlightIntegrator.");
+                        Utils.LogWarning("Unable to register AdvAtmoTools:Redux's Pressure Override with ModularFlightIntegrator.");
                     }
 
                     if (ModularFlightIntegrator.RegistercalculateConstantsAtmosphereOverride(CalculateConstantsAtmosphereOverride))
                     {
-                        Utils.LogInfo("Successfully registered AAT:Redux's Atmosphere and Thermodynamics Overrides with ModularFlightIntegrator.");
+                        Utils.LogInfo("Successfully registered AdvAtmoTools:Redux's Atmosphere and Thermodynamics Overrides with ModularFlightIntegrator.");
                     }
                     else
                     {
-                        Utils.LogWarning("Unable to register AAT:Redux's Atmosphere and Thermodynamics Overrides with ModularFlightIntegrator.");
+                        Utils.LogWarning("Unable to register AdvAtmoTools:Redux's Atmosphere and Thermodynamics Overrides with ModularFlightIntegrator.");
                     }
                     Utils.LogInfo("ModularFlightIntegrator Registration Complete.");
                 }
@@ -62,7 +62,7 @@ namespace AdvancedAtmosphereToolsRedux
                 try
                 {
                     Assembly assembly = Assembly.GetExecutingAssembly();
-                    Harmony harmony = new Harmony("AdvAtmoTools");
+                    Harmony harmony = new Harmony("AdvAtmoTools:Redux");
                     harmony.PatchAll(assembly);
                     Utils.LogInfo("Patching Complete.");
                 }
@@ -83,22 +83,25 @@ namespace AdvancedAtmosphereToolsRedux
         #region aerodynamics
         static void NewUpdateAerodynamics(ModularFlightIntegrator fi, Part part)
         {
-            VesselHandler VH = FlightSceneHandler.GetVesselHandler(fi.Vessel);
+            AtmoToolsRedux_VesselHandler VH = FlightSceneHandler.GetVesselHandler(fi.Vessel);
 
-            //recalculate part static pressure
-            double altitudeAtPos = FlightGlobals.getAltitudeAtPos((Vector3d)part.partTransform.position, fi.CurrentMainBody);
-            //i dont wanna have to recalculate the pressure all over again for each part, so this is probably good enough. I'd rather not sandbag the runtime.
-            double staticpress = fi.CurrentMainBody.GetPressure(altitudeAtPos) * VH.FIPressureMultiplier;
-            if (fi.CurrentMainBody.ocean && altitudeAtPos <= 0.0)
+            if (VH != null)
             {
-                staticpress += fi.Vessel.gravityTrue.magnitude * -altitudeAtPos * fi.CurrentMainBody.oceanDensity;
+                //recalculate part static pressure
+                double altitudeAtPos = FlightGlobals.getAltitudeAtPos((Vector3d)part.partTransform.position, fi.CurrentMainBody);
+                //i dont wanna have to recalculate the pressure all over again for each part, so this is probably good enough. I'd rather not sandbag the runtime.
+                double staticpress = fi.CurrentMainBody.GetPressure(altitudeAtPos) * VH.FIPressureMultiplier;
+                if (fi.CurrentMainBody.ocean && altitudeAtPos <= 0.0)
+                {
+                    staticpress += fi.Vessel.gravityTrue.magnitude * -altitudeAtPos * fi.CurrentMainBody.oceanDensity;
+                }
+                staticpress *= 0.0098692326671601278;
+                if (double.IsFinite(staticpress))
+                {
+                    part.staticPressureAtm = staticpress;
+                }
             }
-            staticpress *= 0.0098692326671601278;
-            if (double.IsFinite(staticpress))
-            {
-                part.staticPressureAtm = staticpress;
-            }
-
+            
             //resume business as normal
             fi.BaseFIUpdateAerodynamics(part);
         }
@@ -106,11 +109,10 @@ namespace AdvancedAtmosphereToolsRedux
         //Takes advantage of CalculateAerodynamicArea()'s placement inside UpdateAerodynamics() to inject a new drag vector into the part before UpdateAerodynamics() uses to calculate anything.
         static double AerodynamicAreaOverride(ModularFlightIntegrator fi, Part part)
         {
-            VesselHandler VH = FlightSceneHandler.GetVesselHandler(fi.Vessel);
+            AtmoToolsRedux_VesselHandler VH = FlightSceneHandler.GetVesselHandler(fi.Vessel);
             Vector3 windvec = VH != null ? VH.InternalAppliedWind : Vector3.zero;
-            Vector3 oceancurrentvec = VH != null ? VH.InternalAppliedOceanCurrent : Vector3.zero;
-            float submerged = (float)part.submergedPortion;
-            windvec.LerpWith(oceancurrentvec, submerged * submerged);
+            double submerged = part.submergedPortion;
+            windvec.LerpWith(Vector3.zero, (float)(submerged * submerged));
 
             //add an offset to the velocity vector used for body drag/lift calcs and update the related fields.
             if (part.Rigidbody != null && windvec.IsFinite() && !Mathf.Approximately(windvec.magnitude, 0.0f))
@@ -164,7 +166,7 @@ namespace AdvancedAtmosphereToolsRedux
         #region thermodynamics
         static void CalculateConstantsAtmosphereOverride(ModularFlightIntegrator fi)
         {
-            VesselHandler VH = FlightSceneHandler.GetVesselHandler(fi.Vessel);
+            AtmoToolsRedux_VesselHandler VH = FlightSceneHandler.GetVesselHandler(fi.Vessel);
             Vector3 windvec = VH != null ? VH.InternalAppliedWind : Vector3.zero;
             if (windvec.IsFinite() && !Mathf.Approximately(windvec.magnitude, 0.0f))
             {
@@ -236,7 +238,7 @@ namespace AdvancedAtmosphereToolsRedux
 
         static void CalcPressureOverride(ModularFlightIntegrator fi)
         {
-            VesselHandler VH = FlightSceneHandler.GetVesselHandler(fi.Vessel);
+            AtmoToolsRedux_VesselHandler VH = FlightSceneHandler.GetVesselHandler(fi.Vessel);
             if (VH == null)
             {
                 fi.BaseFICalculatePressure();
@@ -254,202 +256,41 @@ namespace AdvancedAtmosphereToolsRedux
             }
         }
         #endregion
-    }
 
-    #region harmonypatches
-    //--------------------------HARMONY PATCHES-------------------------------
-
-    //Add an offset to the velocity vector used for wing lift calculations to account for wind.
-    [HarmonyPatch(typeof(ModuleLiftingSurface), nameof(ModuleLiftingSurface.SetupCoefficients))]
-    public static class WingVectorOverride
-    {
-        static void Prefix(ref Vector3 pointVelocity, ModuleLiftingSurface __instance)
+        #region utility
+        internal static void CheckFAR()
         {
-            VesselHandler VH = FlightSceneHandler.GetVesselHandler(__instance.part.vessel);
-            if (!pointVelocity.IsFinite() || VH == null || Settings.FAR_Exists)
+            Utils.LogInfo("Checking for an instance of FerramAerospaceResearch.");
+            try
             {
-                return;
-            }
-            Vector3 windvec = VH.InternalAppliedWind;
-            Vector3 oceancurrentvec = VH.InternalAppliedOceanCurrent;
-            float submerged = (float)__instance.part.submergedPortion;
-            windvec.LerpWith(oceancurrentvec, submerged * submerged);
-            if (windvec.IsFinite() && !Mathf.Approximately(windvec.magnitude, 0.0f))
-            {
-                pointVelocity -= windvec;
-            }
-        }
-    }
-
-    //Modify air intake behavior so wind affects intake performance.
-    [HarmonyPatch(typeof(ModuleResourceIntake), nameof(ModuleResourceIntake.FixedUpdate))]
-    public static class IntakeOverride
-    {
-        static bool Prefix(ModuleResourceIntake __instance) //This is an abomination. Please msg me if you have a cleaner implementation.
-        {
-            //fall back to stock behavior as a failsafe
-            VesselHandler VH = FlightSceneHandler.GetVesselHandler(__instance.part.vessel);
-            if (__instance == null || VH == null)
-            {
-                return true;
-            }
-            Vector3 windvec = VH.InternalAppliedWind;
-            Vector3 oceancurrentvec = VH.InternalAppliedOceanCurrent;
-            float submerged = (float)__instance.part.submergedPortion;
-            windvec.LerpWith(oceancurrentvec, submerged * submerged);
-            if (!windvec.IsFinite() || Mathf.Approximately(windvec.magnitude, 0.0f))
-            {
-                return true;
-            }
-
-            if (__instance.intakeEnabled && __instance.moduleIsEnabled && __instance.vessel != null && __instance.intakeTransform != null)
-            {
-                if (!__instance.part.ShieldedFromAirstream && !(__instance.checkNode && __instance.node.attachedPart != null))
+                Type FARAtm = null;
+                foreach (var assembly in AssemblyLoader.loadedAssemblies)
                 {
-                    if (__instance.vessel.staticPressurekPa >= __instance.kPaThreshold && !(!__instance.vessel.mainBody.atmosphereContainsOxygen && __instance.checkForOxygen))
+                    if (assembly.name == "FerramAerospaceResearch")
                     {
-                        bool inocean = __instance.vessel.mainBody.ocean && FlightGlobals.getAltitudeAtPos(__instance.intakeTransform.position, __instance.vessel.mainBody) < 0.0;
-
-                        //Get intake resource if one of the following is true:
-                        //-both disableunderwater & underwateronly are false
-                        //-disableunderwater is true and we're not in ocean
-                        //-disableunderwater is false, underwateronly is true, and we're in ocean
-                        if ((!__instance.disableUnderwater && !__instance.underwaterOnly) || (__instance.disableUnderwater && !inocean) || (!__instance.disableUnderwater && __instance.underwaterOnly && inocean))
+                        var types = assembly.assembly.GetExportedTypes();
+                        foreach (Type t in types)
                         {
-                            //get intake resource
-                            Vector3d vel = __instance.vessel.srf_velocity - (Vector3d)windvec;
-                            double sqrmag = vel.sqrMagnitude;
-                            double truespeed = Math.Sqrt(sqrmag);
-                            Vector3d truedir = vel / truespeed;
-
-                            double newmach = __instance.vessel.speedOfSound != 0.0 ? truespeed / __instance.vessel.speedOfSound : 0.0;
-
-                            double intakeairspeed = (Mathf.Clamp01(Vector3.Dot((Vector3)truedir, __instance.intakeTransform.forward)) * truespeed) + __instance.intakeSpeed;
-                            __instance.airSpeedGui = (float)intakeairspeed;
-                            double intakemult = intakeairspeed * (__instance.unitScalar * __instance.area * (double)__instance.machCurve.Evaluate((float)newmach));
-                            double airdensity = __instance.underwaterOnly ? __instance.vessel.mainBody.oceanDensity : __instance.vessel.atmDensity;
-                            __instance.resourceUnits = intakemult * airdensity * __instance.densityRecip;
-
-                            if (__instance.resourceUnits > 0.0)
+                            if (t.FullName.Equals("FerramAerospaceResearch.FARWind"))
                             {
-                                __instance.airFlow = (float)__instance.resourceUnits;
-                                __instance.resourceUnits *= (double)TimeWarp.fixedDeltaTime;
-                                if (__instance.res.maxAmount - __instance.res.amount >= __instance.resourceUnits)
-                                {
-                                    __instance.part.TransferResource(__instance.resourceId, __instance.resourceUnits);
-                                }
-                                else
-                                {
-                                    __instance.part.RequestResource(__instance.resourceId, -__instance.resourceUnits);
-                                }
+                                FARAtm = t;
                             }
-                            else
+                            if (t.FullName.Equals("FerramAerospaceResearch.FARAtmosphere"))
                             {
-                                __instance.resourceUnits = 0.0;
-                                __instance.airFlow = 0.0f;
+                                FARAtm = t;
                             }
-                            __instance.status = Localizer.Format("#autoLOC_235936");
-                            return false;
                         }
                     }
-                    //drain the resource
-                    __instance.airFlow = 0.0f;
-                    __instance.airSpeedGui = 0.0f;
-                    __instance.part.TransferResource(__instance.resourceId, double.MinValue);
-                    __instance.status = Localizer.Format("#autoLOC_235946");
-                    return false;
                 }
-                //do nothing
-                __instance.airFlow = 0.0f;
-                __instance.airSpeedGui = 0.0f;
-                __instance.status = Localizer.Format("#autoLOC_235899");
-                return false;
+                Settings.FAR_Exists = FARAtm != null;
+                Utils.LogInfo(Settings.FAR_Exists ? "FerramAerospaceResearch detected. Flight Dynamics calculations will be deferred to FAR." : "No instances of FerramAerospaceResearch detected.");
             }
-            __instance.status = Localizer.Format("#autoLOC_8005416");
-            return false;
-        }
-    }
-
-    //replicates the functionality of Sigma Heat Shifter's maxTempAngleOffset
-    [HarmonyPatch(typeof(CelestialBody), nameof(CelestialBody.GetAtmoThermalStats))]
-    public static class AngleOffsetOverride
-    {
-        public static void Prefix(CelestialBody __instance, ref CelestialBody sunBody, ref Vector3d upAxis)
-        {
-            AtmosphereData Data = __instance.gameObject.GetComponent<AtmosphereData>();
-            if (sunBody != __instance && Data != null)
+            catch (Exception ex)
             {
-                Vector3 up = __instance.bodyTransform.up;
-                double angleoffset = Data.maxTempAngleOffset;
-                //rotate the vessel's upaxis to counteract the rotation applied by the game.
-                //default rotation is 45 degrees, so the default behavior is no rotation applied.
-                upAxis = Quaternion.AngleAxis((-45f + (float)angleoffset) * Mathf.Sign((float)__instance.rotationPeriod), up) * upAxis;
+                Utils.LogError("Exception thrown when checking for FerramAerospaceResearch: " + ex.ToString());
+                Settings.FAR_Exists = false;
             }
         }
+        #endregion
     }
-
-    //first of three harmony patches to decouple oxygen from breathability
-    [HarmonyPatch(typeof(KerbalEVA), nameof(KerbalEVA.CanEVAWithoutHelmet))]
-    public static class KerbalBreathHijacker1
-    {
-        public static void Postfix(ref bool __result, KerbalEVA __instance, ref string ___helmetUnsafeReason)
-        {
-            VesselHandler VH = FlightSceneHandler.GetVesselHandler(__instance.part.vessel);
-            if (__result && VH != null)
-            {
-                bool istoxic = VH.toxicAtmosphere;
-                if (istoxic)
-                {
-                    __result = false;
-                    if (!string.IsNullOrEmpty(VH.toxicAtmosphereMessage))
-                    {
-                        ___helmetUnsafeReason = VH.toxicAtmosphereMessage;
-                    }
-                }
-            }
-        }
-    }
-
-    [HarmonyPatch(typeof(KerbalEVA), nameof(KerbalEVA.CanSafelyRemoveHelmet))]
-    public static class KerbalBreathHijacker2
-    {
-        public static void Postfix(ref bool __result, KerbalEVA __instance, ref string ___helmetUnsafeReason)
-        {
-            VesselHandler VH = FlightSceneHandler.GetVesselHandler(__instance.part.vessel);
-            if (__result && VH != null)
-            {
-                bool istoxic = VH.toxicAtmosphere;
-                if (istoxic)
-                {
-                    __result = false;
-                    if (!string.IsNullOrEmpty(VH.toxicAtmosphereMessage))
-                    {
-                        ___helmetUnsafeReason = VH.toxicAtmosphereMessage;
-                    }
-                }
-            }
-        }
-    }
-
-    [HarmonyPatch(typeof(KerbalEVA), nameof(KerbalEVA.WillDieWithoutHelmet))]
-    public static class KerbalBreathHijacker3
-    {
-        public static void Postfix(ref bool __result, KerbalEVA __instance, ref string ___helmetUnsafeReason)
-        {
-            VesselHandler VH = FlightSceneHandler.GetVesselHandler(__instance.part.vessel);
-            if (__result && VH != null)
-            {
-                bool istoxic = VH.toxicAtmosphere;
-                if (istoxic)
-                {
-                    __result = true;
-                    if (!string.IsNullOrEmpty(VH.toxicAtmosphereMessage))
-                    {
-                        ___helmetUnsafeReason = VH.toxicAtmosphereMessage;
-                    }
-                }
-            }
-        }
-    }
-    #endregion
 }

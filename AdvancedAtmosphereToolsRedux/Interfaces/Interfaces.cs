@@ -3,6 +3,21 @@ using UnityEngine;
 
 namespace AdvancedAtmosphereToolsRedux.Interfaces
 {
+    /* IMPORTANT NOTES:
+     * 
+     * Base and Flat Modifiers must be in the respective units of their type, specified below. 
+     * Fractional Modifiers are unitless.
+     * 
+     * Wind and Ocean Current Vectors must be in m/s, with x being the north/south component, y being the up/down component, z being the east/west component.
+     * Pressure must be in kPa (kiloPascals).
+     * Temperature must be in Kelvin (K).
+     * Molar mass must be in kg/mol (*not* g/mol).
+     * Adiabatic Index is unitless. Google it for details.
+     * 
+     * The Unsafe Atmosphere Indicator simply returns a boolean about whether the atmosphere at the given location (or possibly the entire atmosphere) is unsafe for kerbals to breathe. 
+     * This check takes priority over the "check for oxygen" check.
+    */
+
     public interface IWindProvider
     {
         Vector3 GetWindVector(double longitude, double latitude, double altitude, double time, double trueAnomaly, double eccentricity);
@@ -27,7 +42,7 @@ namespace AdvancedAtmosphereToolsRedux.Interfaces
     {
         double GetFlatPressureModifier(double longitude, double latitude, double altitude, double time, double trueAnomaly, double eccentricity);
     }
-
+    
     public interface IBaseTemperature
     {
         bool DisableLatitudeBias { get; set; }
@@ -87,9 +102,9 @@ namespace AdvancedAtmosphereToolsRedux.Interfaces
         double GetFlatAdiabaticIndexModifier(double longitude, double latitude, double altitude, double time, double trueAnomaly, double eccentricity);
     }
 
-    public interface IToxicAtmosphereIndicator
+    public interface IUnsafeAtmosphereIndicator
     {
-        string ToxicAtmosphereMessage { get; set; }
-        bool IsAtmosphereToxic(double longitude, double latitude, double altitude, double time, double trueAnomaly, double eccentricity);
+        string UnsafeAtmosphereMessage { get; set; }
+        bool IsAtmosphereUnsafe(double longitude, double latitude, double altitude, double time, double trueAnomaly, double eccentricity);
     }
 }

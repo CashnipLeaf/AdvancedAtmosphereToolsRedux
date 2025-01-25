@@ -9,61 +9,88 @@ namespace AdvancedAtmosphereToolsRedux
     using WindDelegate = Func<CelestialBody, Part, Vector3, Vector3>;
     using PropertyDelegate = Func<CelestialBody, Vector3d, double, double>;
 
-    //TODO: add UI handler stuffs
     [KSPAddon(KSPAddon.Startup.Flight, false)]
-    internal sealed class FlightSceneHandler : MonoBehaviour
+    partial class FlightSceneHandler : MonoBehaviour
     {
-        internal static FlightSceneHandler Instance { get; private set; }
-
-        internal static Dictionary<Vessel, VesselHandler> VesselHandlerCache;
+        internal static Dictionary<Vessel, AtmoToolsRedux_VesselHandler> VesselHandlerCache;
 
         void Awake()
         {
-            if (Instance == null) //prevent multiple FlightHandler instances from running.
-            {
-                Utils.LogInfo("Initializing Flight Handler.");
-                Instance = this;
+            Utils.LogInfo("Initializing Flight Handler.");
 
-                if (Settings.FAR_Exists)
-                {
-                    Utils.LogInfo("Registering AAT:Redux with FerramAerospaceResearch.");
-                    RegisterWithFAR();
-                }
-            }
-            else
+            if (Settings.FAR_Exists)
             {
-                Utils.LogWarning("Destroying duplicate Flight Handler. Check your install for duplicate mod folders.");
-                DestroyImmediate(this);
+                Utils.LogInfo("Registering AdvAtmoTools:Redux with FerramAerospaceResearch.");
+                RegisterWithFAR();
             }
+        }
+
+        void FixedUpdate()
+        {
+            Settings.CheckGameSettings();
         }
 
         void OnDestroy()
         {
             VesselHandlerCache.Clear();
-            if (Instance == this)
-            {
-                Instance = null;
-            }
+            RemoveToolbarButton();
+            GameEvents.onGUIApplicationLauncherDestroyed.Remove(RemoveToolbarButton);
         }
 
         //cache the vessel handlers to speed things up
-        internal static VesselHandler GetVesselHandler(Vessel v)
+        internal static AtmoToolsRedux_VesselHandler GetVesselHandler(Vessel v)
         {
-            if (!VesselHandlerCache.ContainsKey(v))
+            if (VesselHandlerCache == null)
             {
-                VesselHandler vesselHandler = v.gameObject.GetComponent<VesselHandler>();
-                if (vesselHandler != null)
-                {
-                    return null;
-                }
-                VesselHandlerCache.Add(v, vesselHandler);
+                VesselHandlerCache = new Dictionary<Vessel, AtmoToolsRedux_VesselHandler>();
             }
-            return VesselHandlerCache[v];
+            if (v == null)
+            {
+                return null;
+            }
+            if (!VesselHandlerCache.ContainsKey(v) || VesselHandlerCache[v] == null)
+            {
+                foreach (VesselModule VM in v.vesselModules)
+                {
+                    if (VM is AtmoToolsRedux_VesselHandler VH)
+                    {
+                        VesselHandlerCache.Add(v, VH);
+                        break;
+                    }
+                }
+            }
+            return VesselHandlerCache.ContainsKey(v) ? VesselHandlerCache[v] : null;
         }
 
-        internal Vector3 GetTheWind(CelestialBody body, Part p, Vector3 pos) => Vector3.zero;
-        internal double GetTheTemperature(CelestialBody body, Vector3d pos, double time) => 0.0;
-        internal double GetThePressure(CelestialBody body, Vector3d pos, double time) => 0.0;
+        internal static void ClearCache()
+        {
+            if (VesselHandlerCache == null)
+            {
+                VesselHandlerCache = new Dictionary<Vessel, AtmoToolsRedux_VesselHandler>();
+            }
+            VesselHandlerCache.Clear();
+        }
+
+        #region FARCompatibility
+        internal Vector3 GetTheWind(CelestialBody body, Part p, Vector3 pos)
+        {
+            AtmoToolsRedux_VesselHandler VH = GetVesselHandler(p.vessel);
+            return VH != null ? Vector3.Lerp(VH.InternalAppliedWind, VH.InternalAppliedOceanCurrent, (float)(p.submergedPortion * p.submergedPortion)) : Vector3.zero;
+        }
+        internal double GetTheTemperature(CelestialBody body, Vector3d pos, double time)
+        {
+            body.GetLatLonAlt(pos, out double lat, out double lon, out double alt);
+            AtmoToolsReduxUtils.GetTrueAnomalyEccentricity(body, out double trueAnomaly, out double eccentricity);
+            AtmosphereData data = AtmosphereData.GetAtmosphereData(body);
+            return data != null ? data.GetTemperature(lon, lat, alt, time, trueAnomaly, eccentricity) : AtmoToolsReduxUtils.GetTemperatureAtPosition(body, lon, lat, alt, trueAnomaly, eccentricity);
+        }
+        internal double GetThePressure(CelestialBody body, Vector3d pos, double time)
+        {
+            body.GetLatLonAlt(pos, out double lat, out double lon, out double alt);
+            AtmoToolsReduxUtils.GetTrueAnomalyEccentricity(body, out double trueAnomaly, out double eccentricity);
+            AtmosphereData data = AtmosphereData.GetAtmosphereData(body);
+            return data != null ? data.GetPressure(lon, lat, alt, time, trueAnomaly, eccentricity) : body.GetPressure(alt);
+        }
 
         internal bool RegisterWithFAR() //Register AdvAtmoTools:Redux with FAR.
         {
@@ -148,5 +175,6 @@ namespace AdvancedAtmosphereToolsRedux
             }
             return false;
         }
+        #endregion
     }
 }

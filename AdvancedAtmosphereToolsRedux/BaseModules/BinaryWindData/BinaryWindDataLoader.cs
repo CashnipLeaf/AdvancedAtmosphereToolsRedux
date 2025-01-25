@@ -1,95 +1,94 @@
 ﻿using System;
 using Kopernicus.ConfigParser.Attributes;
+using Kopernicus.ConfigParser.BuiltinTypeParsers;
 using Kopernicus.ConfigParser.Interfaces;
 using Kopernicus.Configuration.Parsing;
 
-namespace AdvancedAtmosphereToolsRedux.BaseClasses
+namespace AdvancedAtmosphereToolsRedux.BaseModules.BinaryWindData
 {
     [ParserTargetExternal("Atmosphere", "BinaryWindData", "Kopernicus")]
     public class BinaryWindDataLoader : BaseLoader, IParserPostApplyEventSubscriber, ITypeParser<BinaryWindData>
     {
-        public BinaryWindData Value { get; set; }
+        public BinaryWindData Value {  get; set; }
 
         public BinaryWindDataLoader()
         {
-            CelestialBody body = generatedBody.celestialBody;
-            AtmosphereData data = AtmoToolsReduxUtils.GetAtmosphereData(body);
-
-            Value = new BinaryWindData();
-            data.AddWindProvider(Value);
+            Value = new BinaryWindData(); 
         }
 
         //initialize the stuff
         void IParserPostApplyEventSubscriber.PostApply(ConfigNode node)
         {
-            try
-            {
-                Value.Initialize();
-                Value.Initialized = true;
-            }
-            catch
-            {
-                Value.Initialized = false;
-            }
+            Value.Initialize(generatedBody.celestialBody);
+
+            AtmosphereData data = AtmosphereData.GetOrCreateAtmosphereData(generatedBody.celestialBody);
+            data.AddWindProvider(Value);
         }
 
         [ParserTarget("sizeLon")]
-        public int SizeLon
+        public NumericParser<Int32> SizeLon
         {
             get => Value.sizeLon;
             set => Value.sizeLon = value;
         }
 
         [ParserTarget("sizeLat")]
-        public int SizeLat
+        public NumericParser<Int32> SizeLat
         {
             get => Value.sizeLat;
             set => Value.sizeLat = value;
         }
 
         [ParserTarget("sizeAlt")]
-        public int SizeAlt
+        public NumericParser<Int32> SizeAlt
         {
             get => Value.sizeAlt;
             set => Value.sizeAlt = value;
         }
 
         [ParserTarget("timestamps")]
-        public int Timestamps
+        public NumericParser<Int32> Timestamps
         {
             get => Value.timestamps;
             set => Value.timestamps = value;
         }
 
         [ParserTarget("modelTop")]
-        public double ModelTop
+        public NumericParser<Double> ModelTop
         {
             get => Value.modeltop;
             set => Value.modeltop = value;
         }
 
-        [ParserTarget("TimeStep")]
-        public double TimeStep
+        [ParserTarget("timeStep")]
+        public NumericParser<Double> TimeStep
         {
             get => Value.TimeStep;
             set => Value.TimeStep = value;
         }
 
-        [ParserTarget("PathX")]
+        [ParserTarget("scaleFactor")]
+        public NumericParser<Double> ScaleFactor
+        {
+            get => Value.ScaleFactor;
+            set => Value.ScaleFactor = value;
+        }
+
+        [ParserTarget("pathX")]
         public string PathX
         {
             get => Value.PathX;
             set => Value.PathX = value;
         }
 
-        [ParserTarget("PathY")]
+        [ParserTarget("pathY")]
         public string PathY
         {
             get => Value.PathY;
             set => Value.PathY = value;
         }
 
-        [ParserTarget("PathZ")]
+        [ParserTarget("pathZ")]
         public string PathZ
         {
             get => Value.PathZ;
@@ -97,36 +96,36 @@ namespace AdvancedAtmosphereToolsRedux.BaseClasses
         }
 
         //optional values below
-        [ParserTarget("invertAlt", Optional = true)]
-        public bool InvertAlt
+        [ParserTarget("invertAltitude", Optional = true)]
+        public NumericParser<Boolean> InvertAlt
         {
             get => Value.invertalt;
             set => Value.invertalt = value;
         }
 
         [ParserTarget("initialOffset", Optional = true)]
-        public int InitialOffset
+        public NumericParser<Int32> InitialOffset
         {
             get => Value.initialoffset;
             set => Value.initialoffset = value;
         }
 
-        [ParserTarget("lonOffset", Optional = true)]
-        public double LonOffset
+        [ParserTarget("longitudeOffset", Optional = true)]
+        public NumericParser<Double> LonOffset
         {
             get => Value.LonOffset;
             set => Value.LonOffset = value;
         }
 
         [ParserTarget("timeOffset", Optional = true)]
-        public double TimeOffset
+        public NumericParser<Double> TimeOffset
         {
             get => Value.TimeOffset;
             set => Value.TimeOffset = value;
         }
 
         [ParserTarget("verticalWindMultiplier", Optional = true)]
-        public double VerticalWindMultiplier
+        public NumericParser<Double> VerticalWindMultiplier
         {
             get => Value.VerticalWindMultiplier;
             set => Value.VerticalWindMultiplier = value;

@@ -6,16 +6,105 @@ namespace AdvancedAtmosphereToolsRedux
 {
     internal static class Utils
     {
-        internal static string GameDataPath => "finish me";
+        internal static string GameDataPath => KSPUtil.ApplicationRootPath + "GameData/";
+        internal const string Version = "1.0.0";
         internal static void LogInfo(string message) => Debug.Log("[AdvAtmoToolsRedux] " + message);
         internal static void LogWarning(string message) => Debug.Log("[AdvAtmoToolsRedux][WARNING] " + message);
         internal static void LogError(string message) => Debug.Log("[AdvAtmoToolsRedux][ERROR] " + message);
+
+        
+        internal static float BiLerp(float first1, float second1, float first2, float second2, float by1, float by2)
+        {
+            return Mathf.Lerp(Mathf.Lerp(first1, second1, by1), Mathf.Lerp(first2, second2, by1), by2);
+        }
+
+        //allow for altitude spacing based on some factor
+        internal static double ScaleAltitude(double nX, double xBase, int upperbound, out int int1, out int int2)
+        {
+            nX = UtilMath.Clamp01(nX);
+            double z = (xBase <= 1.0 ? nX : ((Math.Pow(xBase, -nX * upperbound) - 1) / (Math.Pow(xBase, -1 * upperbound) - 1))) * upperbound;
+            int1 = Clamp((int)Math.Floor(z), 0, upperbound); //layer 1
+            int2 = Clamp(int1 + 1, 0, upperbound); //layer 2
+            return nX >= 1d ? 1d : UtilMath.Clamp01(z - Math.Truncate(z));
+        }
+
+        internal static double InterpolatePressure(double first, double second, double by)
+        {
+            if (first < 0.0 || second < 0.0) //negative values will break the logarithm, so they are not allowed.
+            {
+                throw new ArgumentOutOfRangeException();
+            }
+            if (first <= float.Epsilon || second <= float.Epsilon)
+            {
+                return UtilMath.Lerp(first, second, by);
+            }
+            double scalefactor = Math.Log(first / second);
+            if (double.IsNaN(scalefactor))
+            {
+                throw new NotFiniteNumberException();
+            }
+            return first * Math.Pow(Math.E, -1 * UtilMath.Lerp(0.0, UtilMath.Clamp(scalefactor, float.MinValue, float.MaxValue), by));
+        }
+
+        //Apparently no such function exists for integers in either UtilMath or Mathf. Why?
+        internal static int Clamp(int value, int min, int max) => Math.Min(Math.Max(value, min), max);
+
+        internal static FloatCurve CreateFlatCurve(double value) => CreateFlatCurve((float)value);
+
+        internal static FloatCurve CreateFlatCurve(float value)
+        {
+            FloatCurve curve = new FloatCurve();
+            curve.Add(0.0f, value, 0.0f, 0.0f);
+            return curve;
+        }
+
+        internal static FloatCurve CreateAltitudeCurve(double min, double max, double lowerfade, double upperfade) => CreateAltitudeCurve((float)min, (float)max, (float)lowerfade, (float)upperfade);
+
+        internal static FloatCurve CreateAltitudeCurve(float min, float max, float lowerfade, float upperfade)
+        {
+            FloatCurve curve = new FloatCurve();
+            curve.Add(min, 0.0f, 0.0f, 1.0f / (lowerfade - min));
+            curve.Add(lowerfade, 1.0f, 1.0f / (lowerfade - min), 0.0f);
+            curve.Add(upperfade, 1.0f, 0.0f, -1.0f / (max - upperfade));
+            curve.Add(max, 0.0f, -1.0f / (max - upperfade), 0.0f);
+            return curve;
+        }
+
+        internal static float GetValAtLoopTime(FloatCurve curve, double time)
+        {
+            if (curve.maxTime == 0f)
+            {
+                return curve.Evaluate(0f);
+            }
+            else
+            {
+                return curve.Evaluate(((float)time + curve.maxTime) % curve.maxTime);
+            }
+        }
+
+        internal static Texture2D CreateTexture(string path)
+        {
+            string gdpath = GameDataPath + path;
+            if (!File.Exists(gdpath))
+            {
+                throw new FileNotFoundException("Could not locate Texture file at file path: " + path + " . Verify that the given file path is correct.");
+            }
+            byte[] fileData = File.ReadAllBytes(gdpath);
+            Texture2D tex = new Texture2D(2, 2);
+            ImageConversion.LoadImage(tex, fileData);
+            return tex;
+        }
 
         internal static float[][,,] ReadBinaryFile(string path, int lon, int lat, int alt, int steps, int offset, bool invertalt)
         {
             int Blocksize = lon * lat * sizeof(float);
             float[][,,] newarray = new float[steps][,,];
-            using (BinaryReader reader = new BinaryReader(File.OpenRead(GameDataPath + path)))
+            string gdpath = GameDataPath + path;
+            if (!File.Exists(gdpath))
+            {
+                throw new FileNotFoundException("Could not locate Binary Data file at file path: " + path + " . Verify that the given file path is correct.");
+            }
+            using (BinaryReader reader = new BinaryReader(File.OpenRead(gdpath)))
             {
                 if (offset > 0) //eat the initial offset
                 {
@@ -39,41 +128,5 @@ namespace AdvancedAtmosphereToolsRedux
             }
             return newarray;
         }
-
-        public static float BiLerp(float first1, float second1, float first2, float second2, float by1, float by2)
-        {
-            return Mathf.Lerp(Mathf.Lerp(first1, second1, by1), Mathf.Lerp(first2, second2, by1), by2);
-        }
-
-        //allow for altitude spacing based on some factor
-        public static double ScaleAltitude(double nX, double xBase, int upperbound, out int int1, out int int2)
-        {
-            nX = UtilMath.Clamp01(nX);
-            double z = (xBase <= 1.0 ? nX : ((Math.Pow(xBase, -nX * upperbound) - 1) / (Math.Pow(xBase, -1 * upperbound) - 1))) * upperbound;
-            int1 = Clamp((int)Math.Floor(z), 0, upperbound); //layer 1
-            int2 = Clamp(int1 + 1, 0, upperbound); //layer 2
-            return nX >= 1d ? 1d : UtilMath.Clamp01(z - Math.Truncate(z));
-        }
-
-        public static double InterpolatePressure(double first, double second, double by)
-        {
-            if (first < 0.0 || second < 0.0) //negative values will break the logarithm, so they are not allowed.
-            {
-                throw new ArgumentOutOfRangeException();
-            }
-            if (first <= float.Epsilon || second <= float.Epsilon)
-            {
-                return UtilMath.Lerp(first, second, by);
-            }
-            double scalefactor = Math.Log(first / second);
-            if (double.IsNaN(scalefactor))
-            {
-                throw new NotFiniteNumberException();
-            }
-            return first * Math.Pow(Math.E, -1 * UtilMath.Lerp(0.0, UtilMath.Clamp(scalefactor, float.MinValue, float.MaxValue), by));
-        }
-
-        //Apparently no such function exists for integers in either UtilMath or Mathf. Why?
-        public static int Clamp(int value, int min, int max) => Math.Min(Math.Max(value, min), max);
     }
 }

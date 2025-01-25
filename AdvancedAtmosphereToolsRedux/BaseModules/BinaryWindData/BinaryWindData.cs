@@ -2,9 +2,9 @@
 using AdvancedAtmosphereToolsRedux.Interfaces;
 using UnityEngine;
 
-namespace AdvancedAtmosphereToolsRedux.BaseClasses
+namespace AdvancedAtmosphereToolsRedux.BaseModules.BinaryWindData
 {
-    public class BinaryWindData : AtmosphereModifier, IWindProvider
+    public class BinaryWindData : IWindProvider
     {
         public int sizeLon;
         public int sizeLat;
@@ -26,18 +26,21 @@ namespace AdvancedAtmosphereToolsRedux.BaseClasses
         public float[][,,] WindDataX;
         public float[][,,] WindDataY;
         public float[][,,] WindDataZ;
-       
+
+        public CelestialBody Body;
+
         public BinaryWindData() { }
 
-        public override void Initialize()
+        public void Initialize(CelestialBody body)
         {
+            Body = body;
             if (string.IsNullOrEmpty(PathX) || string.IsNullOrEmpty(PathY) || string.IsNullOrEmpty(PathZ))
             {
                 throw new ArgumentNullException();
             }
-            WindDataX = Utils.ReadBinaryFile(PathX,sizeLon, sizeLat, sizeAlt, initialoffset, timestamps, invertalt);
-            WindDataY = Utils.ReadBinaryFile(PathY,sizeLon, sizeLat, sizeAlt, initialoffset, timestamps, invertalt);
-            WindDataZ = Utils.ReadBinaryFile(PathZ,sizeLon, sizeLat, sizeAlt, initialoffset, timestamps, invertalt);
+            WindDataX = Utils.ReadBinaryFile(PathX, sizeLon, sizeLat, sizeAlt, timestamps, initialoffset, invertalt);
+            WindDataY = Utils.ReadBinaryFile(PathY, sizeLon, sizeLat, sizeAlt, timestamps, initialoffset, invertalt);
+            WindDataZ = Utils.ReadBinaryFile(PathZ, sizeLon, sizeLat, sizeAlt, timestamps, initialoffset, invertalt);
         }
 
         public Vector3 GetWindVector(double longitude, double latitude, double altitude, double time, double trueAnomaly, double eccentricity)

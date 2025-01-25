@@ -129,8 +129,6 @@ namespace AdvancedAtmosphereToolsRedux
         internal static bool buttondisablewindstationary = false; //GUI button
         internal static bool settingsdisablewindstationary = false;
 
-        internal static bool debugmode = false;
-
         internal static void CheckGameSettings() //fetch game settings.
         {
             string tmpcolor = HighLogic.CurrentGame.Parameters.CustomParams<AATR_CustomSettings>().markercolor;

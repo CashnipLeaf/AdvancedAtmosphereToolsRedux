@@ -21,6 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -75,6 +76,10 @@
     <Reference Include="UnityEngine.PhysicsModule">
       <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program\KSP_x64_Data\Managed\UnityEngine.PhysicsModule.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.TextRenderingModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program\KSP_x64_Data\Managed\UnityEngine.TextRenderingModule.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program\KSP_x64_Data\Managed\UnityEngine.UI.dll</HintPath>
     </Reference>
@@ -88,20 +93,40 @@
   <ItemGroup>
     <Compile Include="API.cs" />
     <Compile Include="AtmoToolsReduxUtils.cs" />
-    <Compile Include="AtmoToolsStartup.cs" />
-    <Compile Include="BaseClasses\BinaryWindData.cs" />
+    <Compile Include="BaseModules\AdiabaticIndexCurve\AdiabaticIndexCurve.cs" />
+    <Compile Include="BaseModules\AdiabaticIndexCurve\AdiabaticIndexCurveLoader.cs" />
+    <Compile Include="BaseModules\BinaryPressureData\BinaryPressureData.cs" />
+    <Compile Include="BaseModules\BinaryPressureData\BinaryPressureDataLoader.cs" />
+    <Compile Include="BaseModules\BinaryTemperatureData\BinaryTemperatureData.cs" />
+    <Compile Include="BaseModules\BinaryTemperatureData\BinaryTemperatureDataLoader.cs" />
+    <Compile Include="BaseModules\BinaryWindData\BinaryWindData.cs" />
     <Compile Include="AtmosphereData.cs" />
-    <Compile Include="BaseClasses\BinaryWindDataLoader.cs" />
-    <Compile Include="BaseClasses\MaxTempAngleOffsetLoader.cs" />
+    <Compile Include="BaseModules\BinaryWindData\BinaryWindDataLoader.cs" />
+    <Compile Include="BaseModules\FlowMap\FlowMap.cs" />
+    <Compile Include="BaseModules\FlowMap\FlowMapLoader.cs" />
+    <Compile Include="BaseModules\GenericWindObject\GenericWindObject.cs" />
+    <Compile Include="BaseModules\GenericWindObject\GenericWindObjectLoader.cs" />
+    <Compile Include="BaseModules\MolarMassCurve\MolarMassCurve.cs" />
+    <Compile Include="BaseModules\MolarMassCurve\MolarMassCurveLoader.cs" />
+    <Compile Include="BaseModules\OtherPropertiesLoader.cs" />
+    <Compile Include="BaseModules\SecondStarTemperatureController\SecondStarTemperatureController.cs" />
+    <Compile Include="BaseModules\SecondStarTemperatureController\SecondStarTemperatureControllerLoader.cs" />
     <Compile Include="CustomSettings.cs" />
     <Compile Include="ExtensionMethods.cs" />
     <Compile Include="FlightDynamicsOverrides.cs" />
     <Compile Include="FlightSceneHandler.cs" />
-    <Compile Include="Interfaces\AtmosphereModifier.cs" />
+    <Compile Include="HarmonyPatches\AirIntakeHijacker.cs" />
+    <Compile Include="HarmonyPatches\MaxTempAngleOffsetInjector.cs" />
+    <Compile Include="HarmonyPatches\UnsafeAtmosphere.cs" />
+    <Compile Include="HarmonyPatches\WingHijacker.cs" />
     <Compile Include="Interfaces\Interfaces.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ToolbarRegister.cs" />
+    <Compile Include="UnityGUI.cs" />
     <Compile Include="Utils.cs" />
-    <Compile Include="VesselHandler.cs" />
+    <Compile Include="AtmoToolsRedux_VesselHandler.cs" />
+    <Compile Include="HarmonyPatches\WaterPhysics.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
