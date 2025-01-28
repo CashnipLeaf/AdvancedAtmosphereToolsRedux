@@ -8,9 +8,9 @@ namespace AdvancedAtmosphereToolsRedux
     {
         internal static string GameDataPath => KSPUtil.ApplicationRootPath + "GameData/";
         internal const string Version = "1.0.0";
-        internal static void LogInfo(string message) => Debug.Log("[AdvAtmoToolsRedux] " + message);
-        internal static void LogWarning(string message) => Debug.Log("[AdvAtmoToolsRedux][WARNING] " + message);
-        internal static void LogError(string message) => Debug.Log("[AdvAtmoToolsRedux][ERROR] " + message);
+        internal static void LogInfo(string message) => Debug.Log("[AdvAtmoToolsRedux]: " + message);
+        internal static void LogWarning(string message) => Debug.Log("[AdvAtmoToolsRedux][WARNING]: " + message);
+        internal static void LogError(string message) => Debug.Log("[AdvAtmoToolsRedux][ERROR]: " + message);
 
         
         internal static float BiLerp(float first1, float second1, float first2, float second2, float by1, float by2)
@@ -49,15 +49,6 @@ namespace AdvancedAtmosphereToolsRedux
         //Apparently no such function exists for integers in either UtilMath or Mathf. Why?
         internal static int Clamp(int value, int min, int max) => Math.Min(Math.Max(value, min), max);
 
-        internal static FloatCurve CreateFlatCurve(double value) => CreateFlatCurve((float)value);
-
-        internal static FloatCurve CreateFlatCurve(float value)
-        {
-            FloatCurve curve = new FloatCurve();
-            curve.Add(0.0f, value, 0.0f, 0.0f);
-            return curve;
-        }
-
         internal static FloatCurve CreateAltitudeCurve(double min, double max, double lowerfade, double upperfade) => CreateAltitudeCurve((float)min, (float)max, (float)lowerfade, (float)upperfade);
 
         internal static FloatCurve CreateAltitudeCurve(float min, float max, float lowerfade, float upperfade)
@@ -72,7 +63,7 @@ namespace AdvancedAtmosphereToolsRedux
 
         internal static float GetValAtLoopTime(FloatCurve curve, double time)
         {
-            if (curve.maxTime == 0f)
+            if (curve.maxTime <= 0f)
             {
                 return curve.Evaluate(0f);
             }

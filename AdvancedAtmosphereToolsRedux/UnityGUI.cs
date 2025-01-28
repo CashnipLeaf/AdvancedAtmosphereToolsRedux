@@ -6,7 +6,6 @@ using ToolbarControl_NS;
 
 namespace AdvancedAtmosphereToolsRedux
 {
-    //TODO: add aerodynamic and hydrodynamic drag stats
     partial class FlightSceneHandler
     {
         private ToolbarControl toolbarController;
@@ -37,9 +36,7 @@ namespace AdvancedAtmosphereToolsRedux
         private static readonly string[] directions = { "N", "S", "E", "W" };
         private static readonly string[] cardinaldirs = { "N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW" };
 
-        //retrieve localization tag.
-
-        void Start()
+        void StartGUI()
         {
             //add to toolbar
             ApplicationLauncher.AppScenes scenes = ApplicationLauncher.AppScenes.FLIGHT | ApplicationLauncher.AppScenes.MAPVIEW;
@@ -51,6 +48,12 @@ namespace AdvancedAtmosphereToolsRedux
             }
             windowPos = new Rect(Xpos, Ypos, Xwidth, Yheight);
             Settings.buttondisablewindstationary = Settings.buttonindicatorsenabled = false;
+        }
+
+        void DestroyGUI()
+        {
+            RemoveToolbarButton();
+            GameEvents.onGUIApplicationLauncherDestroyed.Remove(RemoveToolbarButton);
         }
 
         void OnGUI()
@@ -94,18 +97,14 @@ namespace AdvancedAtmosphereToolsRedux
             GUILayout.EndHorizontal();
 
             Vessel Activevessel = FlightGlobals.ActiveVessel;
-            
-            if (Activevessel != null && Activevessel.mainBody != null)
+            AtmoToolsRedux_VesselHandler VH = GetVesselHandler(Activevessel);
+
+            if (Activevessel != null && Activevessel.mainBody != null && VH != null)
             {
                 CelestialBody mainbody = Activevessel.mainBody;
                 bool inatmo = mainbody.atmosphere && Activevessel.staticPressurekPa > 0.0;
                 string altitude = string.Format(Math.Abs(Activevessel.altitude) > 1000000d ? "{0:0.#####E+00} {1}" : "{0:F2} {1}", Activevessel.altitude, Localizer.Format("#LOC_AATR_meter"));
-                AtmoToolsRedux_VesselHandler VH = GetVesselHandler(Activevessel);
-                if (VH == null)
-                {
-                    GUILayout.EndVertical();
-                    return;
-                }
+                
                 Vector3 craftdragvector = Activevessel.srf_velocity;
                 Vector3 craftdragvectorwind = Activevessel.srf_velocity - VH.InternalAppliedWind;
                 Vector3 craftdragvectortransformed = VH.LocalToWorld.inverse * craftdragvector;

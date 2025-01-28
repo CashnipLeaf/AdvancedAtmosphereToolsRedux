@@ -39,21 +39,21 @@ namespace AdvancedAtmosphereToolsRedux
         internal double FIPressureMultiplier
         {
             get => pressuremultiplier;
-            set => pressuremultiplier = double.IsFinite(value) ? value : 1.0;
+            private set => pressuremultiplier = double.IsFinite(value) ? value : 1.0;
         }
 
         private double molarmass = 0.0;
         internal double MolarMass
         {
             get => molarmass;
-            set => molarmass = Math.Max(value, 0.0);
+            private set => molarmass = Math.Max(value, 0.0);
         }
 
         private double adiabaticindex = 0.0;
         internal double AdiabaticIndex
         {
             get => adiabaticindex;
-            set => adiabaticindex = Math.Max(value, 0.0);
+            private set => adiabaticindex = Math.Max(value, 0.0);
         }
 
         public override int GetOrder() => -5;
@@ -104,10 +104,8 @@ namespace AdvancedAtmosphereToolsRedux
             double time = Planetarium.GetUniversalTime();
             CelestialBody mainBody = vessel.mainBody;
 
-            AtmoToolsReduxUtils.GetTrueAnomalyEccentricity(mainBody, out double trueAnomaly, out double eccentricitybias);
-
             DisableMultiplier = 1.0f;
-            if(vessel != null)
+            if (vessel != null)
             {
                 if (vessel.easingInToSurface)
                 {
@@ -119,6 +117,18 @@ namespace AdvancedAtmosphereToolsRedux
                 }
             }
 
+            if (mainBody == null || !mainBody.atmosphere || altitude > mainBody.atmosphereDepth)
+            {
+                Pressure = 0.0;
+                FIPressureMultiplier = 1.0;
+                Temperature = PhysicsGlobals.SpaceTemperature;
+                MolarMass = mainBody.atmosphereMolarMass;
+                AdiabaticIndex = mainBody.atmosphereAdiabaticIndex;
+                return;
+            }
+
+            AtmoToolsReduxUtils.GetTrueAnomalyEccentricity(mainBody, out double trueAnomaly, out double eccentricitybias);
+
             AtmosphereData bodydata = AtmosphereData.GetAtmosphereData(mainBody);
             if (bodydata != null)
             {
@@ -126,7 +136,7 @@ namespace AdvancedAtmosphereToolsRedux
                 try
                 {
                     RawWind = bodydata.GetWindVector(longitude, latitude, altitude, time, trueAnomaly, eccentricitybias);
-                    AppliedWind = LocalToWorld * RawWind;
+                    AppliedWind = LocalToWorld * RawWind * Settings.GlobalWindSpeedMultiplier;
 
                     InternalAppliedWind = AppliedWind * DisableMultiplier;
                 }
@@ -137,7 +147,7 @@ namespace AdvancedAtmosphereToolsRedux
                     InternalAppliedWind.Zero();
                 }
 
-                //Ocean Currents
+                //Ocean Currents (unused)
                 try
                 {
                     RawOceanCurrent = bodydata.GetOceanCurrentVector(longitude, latitude, altitude, time, trueAnomaly, eccentricitybias);

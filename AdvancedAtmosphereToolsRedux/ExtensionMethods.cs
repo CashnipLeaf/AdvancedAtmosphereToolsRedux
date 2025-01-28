@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+using Kopernicus.Configuration;
 using UnityEngine;
 
 namespace AdvancedAtmosphereToolsRedux
@@ -59,6 +60,7 @@ namespace AdvancedAtmosphereToolsRedux
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static bool IsZero(ref this Vector3 v) => v.x == 0.0f && v.y == 0.0f && v.z == 0.0f;
 
+        //Celestial Body Extension Methods
         internal static double OceanBulkModulus(this CelestialBody body)
         {
             AtmosphereData data = AtmosphereData.GetAtmosphereData(body);

@@ -91,7 +91,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="API.cs" />
+    <Compile Include="AtmoToolsRedux_API.cs" />
     <Compile Include="AtmoToolsReduxUtils.cs" />
     <Compile Include="BaseModules\AdiabaticIndexCurve\AdiabaticIndexCurve.cs" />
     <Compile Include="BaseModules\AdiabaticIndexCurve\AdiabaticIndexCurveLoader.cs" />
@@ -104,15 +104,21 @@
     <Compile Include="BaseModules\BinaryWindData\BinaryWindDataLoader.cs" />
     <Compile Include="BaseModules\FlowMap\FlowMap.cs" />
     <Compile Include="BaseModules\FlowMap\FlowMapLoader.cs" />
+    <Compile Include="BaseModules\GenericUnsafeAtmosphere\GenericUnsafeAtmosphere.cs" />
+    <Compile Include="BaseModules\GenericUnsafeAtmosphere\GenericUnsafeAtmosphereLoader.cs" />
     <Compile Include="BaseModules\GenericWindObject\GenericWindObject.cs" />
     <Compile Include="BaseModules\GenericWindObject\GenericWindObjectLoader.cs" />
     <Compile Include="BaseModules\MolarMassCurve\MolarMassCurve.cs" />
     <Compile Include="BaseModules\MolarMassCurve\MolarMassCurveLoader.cs" />
     <Compile Include="BaseModules\OtherPropertiesLoader.cs" />
-    <Compile Include="BaseModules\SecondStarTemperatureController\SecondStarTemperatureController.cs" />
-    <Compile Include="BaseModules\SecondStarTemperatureController\SecondStarTemperatureControllerLoader.cs" />
+    <Compile Include="BaseModules\TestModule\TestModule.cs" />
+    <Compile Include="BaseModules\TestModule\TestModuleLoader.cs" />
+    <Compile Include="BaseModules\TwinStarTemperatureController\TwinStarTemperatureController.cs" />
+    <Compile Include="BaseModules\TwinStarTemperatureController\TwinStarTemperatureControllerLoader.cs" />
     <Compile Include="CustomSettings.cs" />
+    <Compile Include="CustomStructs\OrbitParams.cs" />
     <Compile Include="ExtensionMethods.cs" />
+    <Compile Include="FinalSetupHandlerAsync.cs" />
     <Compile Include="FlightDynamicsOverrides.cs" />
     <Compile Include="FlightSceneHandler.cs" />
     <Compile Include="HarmonyPatches\AirIntakeHijacker.cs" />
@@ -126,6 +132,7 @@
     <Compile Include="Utils.cs" />
     <Compile Include="AtmoToolsRedux_VesselHandler.cs" />
     <Compile Include="HarmonyPatches\WaterPhysics.cs" />
+    <Compile Include="WindAdjustedMarkers.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

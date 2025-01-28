@@ -20,12 +20,12 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.GenericWindObject
 
         public FloatCurve RadiusSpeedMultCurve;
         public FloatCurve AltitudeSpeedMultCurve;
-        public FloatCurve X_AltitudeSpeedMultCurve; 
-        public FloatCurve Y_AltitudeSpeedMultCurve; 
-        public FloatCurve Z_AltitudeSpeedMultCurve; 
-        public FloatCurve WindSpeedMultiplierTimeCurve;
-        public FloatCurve TrueAnomalyMultiplierCurve;
-        public FloatCurve EccentricityMultiplierCurve;
+        public FloatCurve X_AltitudeSpeedMultCurve = new FloatCurve(new Keyframe[1] { new Keyframe(0f, 1f, 0f, 0f) }); 
+        public FloatCurve Y_AltitudeSpeedMultCurve = new FloatCurve(new Keyframe[1] { new Keyframe(0f, 1f, 0f, 0f) }); 
+        public FloatCurve Z_AltitudeSpeedMultCurve = new FloatCurve(new Keyframe[1] { new Keyframe(0f, 1f, 0f, 0f) }); 
+        public FloatCurve WindSpeedMultiplierTimeCurve = new FloatCurve(new Keyframe[1] { new Keyframe(0f, 1f, 0f, 0f) });
+        public FloatCurve TrueAnomalyMultiplierCurve = new FloatCurve(new Keyframe[1] { new Keyframe(0f, 1f, 0f, 0f) });
+        public FloatCurve EccentricityMultiplierCurve = new FloatCurve(new Keyframe[1] { new Keyframe(0f, 1f, 0f, 0f) });
 
         public float timeoffset = 0f;
 
@@ -48,7 +48,7 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.GenericWindObject
                 }
                 else
                 {
-                    AltitudeSpeedMultCurve = Utils.CreateFlatCurve(1.0);
+                    AltitudeSpeedMultCurve = new FloatCurve(new Keyframe[1] { new Keyframe(0f, 1f, 0f, 0f) });
                 }
             }
             if (RadiusSpeedMultCurve == null)
@@ -60,35 +60,11 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.GenericWindObject
             }
             if (LongitudeCenterTimeCurve == null)
             {
-                LongitudeCenterTimeCurve = Utils.CreateFlatCurve(longitudeCenter);
+                LongitudeCenterTimeCurve = new FloatCurve(new Keyframe[1] { new Keyframe(0f, (float)longitudeCenter, 0f, 0f) });
             }
             if (LatitudeCenterTimeCurve == null)
             {
-                LatitudeCenterTimeCurve = Utils.CreateFlatCurve(latitudeCenter);
-            }
-            if (X_AltitudeSpeedMultCurve == null)
-            {
-                X_AltitudeSpeedMultCurve = Utils.CreateFlatCurve(1.0);
-            }
-            if (Y_AltitudeSpeedMultCurve == null)
-            {
-                Y_AltitudeSpeedMultCurve = Utils.CreateFlatCurve(1.0);
-            }
-            if (Z_AltitudeSpeedMultCurve == null)
-            {
-                Z_AltitudeSpeedMultCurve = Utils.CreateFlatCurve(1.0);
-            }
-            if (WindSpeedMultiplierTimeCurve == null)
-            {
-                WindSpeedMultiplierTimeCurve = Utils.CreateFlatCurve(1.0);
-            }
-            if (TrueAnomalyMultiplierCurve == null)
-            {
-                TrueAnomalyMultiplierCurve = Utils.CreateFlatCurve(1.0);
-            }
-            if (EccentricityMultiplierCurve == null)
-            {
-                EccentricityMultiplierCurve = Utils.CreateFlatCurve(1.0);
+                LatitudeCenterTimeCurve = new FloatCurve(new Keyframe[1] { new Keyframe(0f, (float)latitudeCenter, 0f, 0f) });
             }
         }
 

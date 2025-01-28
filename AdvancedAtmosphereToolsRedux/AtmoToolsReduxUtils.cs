@@ -19,7 +19,8 @@ namespace AdvancedAtmosphereToolsRedux
         public static void GetTemperatureWithComponents(CelestialBody body, double longitude, double latitude, double altitude, double trueAnomaly, double eccentricity, out double basetemp, out double latbias, out double latsunmult, out double axialbias, out double eccentricitybias)
         {
             basetemp = body.GetTemperature(altitude);
-            latbias = latsunmult = axialbias = eccentricitybias = 0.0;
+            latbias = (double)body.latitudeTemperatureBiasCurve.Evaluate((float)Math.Abs(latitude));
+            latsunmult = axialbias = eccentricitybias = 0.0;
             if (body != FlightIntegrator.sunBody)
             {
                 Vector3d position = ScaledSpace.LocalToScaledSpace(body.GetWorldSurfacePosition(latitude, longitude, altitude));
@@ -70,14 +71,27 @@ namespace AdvancedAtmosphereToolsRedux
                     num9 = num1 + num8 * 0.5;
                 }
 
-                latbias = (double)body.latitudeTemperatureBiasCurve.Evaluate((float)Math.Abs(latitude));
-
                 latsunmult = (double)body.latitudeTemperatureSunMultCurve.Evaluate((float)Math.Abs(latitude)) * num9;
 
                 axialbias = (double)body.axialTemperatureSunBiasCurve.Evaluate((float)trueAnomaly) * (double)body.axialTemperatureSunMultCurve.Evaluate((float)Math.Abs(latitude));
 
                 eccentricitybias = (double)body.eccentricityTemperatureBiasCurve.Evaluate((float)eccentricity);
             }
+        }
+
+        //CelestialBody.GetDensity() but manipulated for my own purposes
+        public static double GetDensity(double pressure, double temperature, double molarmass) => pressure > 0.0 && temperature > 0.0 ? (pressure * 1000 * molarmass) / (temperature * PhysicsGlobals.IdealGasConstant) : 0.0;
+
+        //CelestialBody.GetSpeedOfSound() but manipulated for my own purposes
+        public static double GetSpeedOfSound(double pressure, double density, double adiabaticIndex) => pressure > 0.0 && density > 0.0 ? Math.Sqrt(adiabaticIndex * (pressure * 1000 / density)) : 0.0;
+
+        public static Matrix4x4 GetVesselTransformMatrix(Vessel vessel)
+        {
+            Matrix4x4 LocalToWorld = Matrix4x4.identity;
+            LocalToWorld.SetColumn(0, (Vector3)vessel.north);
+            LocalToWorld.SetColumn(1, (Vector3)vessel.up);
+            LocalToWorld.SetColumn(2, (Vector3)vessel.east);
+            return LocalToWorld;
         }
 
         //--------------------LOCATION UTILITIES---------------------------
@@ -158,15 +172,15 @@ namespace AdvancedAtmosphereToolsRedux
             return body;
         }
 
-        //Get the true anomaly (0-360 degrees) and eccentricity bias (0-1 where 1 is apoapsis and 0 is periapsis) of a body's orbit around its parent star
+        //Get the true anomaly (0-360 degrees) and eccentricity bias (0-1 where 1 is apoapsis and 0 is periapsis) of this body (or its whatever-th parent body) around its local star
         public static void GetTrueAnomalyEccentricity(CelestialBody body, out double trueAnomaly, out double eccentricitybias)
         {
             trueAnomaly = eccentricitybias = 0.0;
-            CelestialBody starref = GetLocalPlanet(body);
-            if (starref != null && starref != FlightIntegrator.sunBody && starref.orbit != null)
+            CelestialBody refbody = GetLocalPlanet(body);
+            if (refbody != null && refbody != FlightIntegrator.sunBody && refbody.orbit != null)
             {
-                trueAnomaly = ((starref.orbit.trueAnomaly * UtilMath.Rad2Deg) + 360.0) % 360.0;
-                eccentricitybias = starref.orbit.eccentricity != 0.0 ? (starref.orbit.radius - starref.orbit.PeR) / (starref.orbit.ApR - starref.orbit.PeR) : 0.0;
+                trueAnomaly = ((refbody.orbit.trueAnomaly * UtilMath.Rad2Deg) + 360.0) % 360.0;
+                eccentricitybias = refbody.orbit.eccentricity != 0.0 ? (refbody.orbit.radius - refbody.orbit.PeR) / (refbody.orbit.ApR - refbody.orbit.PeR) : 0.0;
             }
         }
     }

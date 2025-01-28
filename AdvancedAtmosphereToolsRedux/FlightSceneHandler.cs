@@ -25,6 +25,12 @@ namespace AdvancedAtmosphereToolsRedux
             }
         }
 
+        void Start()
+        {
+            StartGUI();
+            StartMarkers();
+        }
+
         void FixedUpdate()
         {
             Settings.CheckGameSettings();
@@ -33,8 +39,8 @@ namespace AdvancedAtmosphereToolsRedux
         void OnDestroy()
         {
             VesselHandlerCache.Clear();
-            RemoveToolbarButton();
-            GameEvents.onGUIApplicationLauncherDestroyed.Remove(RemoveToolbarButton);
+            DestroyGUI();
+            DestroyMarkers();
         }
 
         //cache the vessel handlers to speed things up

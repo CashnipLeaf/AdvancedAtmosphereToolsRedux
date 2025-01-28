@@ -10,12 +10,12 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.FlowMap
         
         public bool useThirdChannel = false; //whether or not to use the Blue channel to add a vertical component to the winds.
         public FloatCurve AltitudeSpeedMultCurve;
-        public FloatCurve X_AltitudeSpeedMultCurve;
-        public FloatCurve Y_AltitudeSpeedMultCurve;
-        public FloatCurve Z_AltitudeSpeedMultCurve;
-        public FloatCurve WindSpeedMultiplierTimeCurve;
-        public FloatCurve TrueAnomalyMultiplierCurve;
-        public FloatCurve EccentricityMultiplierCurve;
+        public FloatCurve X_AltitudeSpeedMultCurve = new FloatCurve(new Keyframe[1] { new Keyframe(0f, 1f, 0f, 0f) });
+        public FloatCurve Y_AltitudeSpeedMultCurve = new FloatCurve(new Keyframe[1] { new Keyframe(0f, 1f, 0f, 0f) });
+        public FloatCurve Z_AltitudeSpeedMultCurve = new FloatCurve(new Keyframe[1] { new Keyframe(0f, 1f, 0f, 0f) });
+        public FloatCurve WindSpeedMultiplierTimeCurve = new FloatCurve(new Keyframe[1] { new Keyframe(0f, 1f, 0f, 0f) });
+        public FloatCurve TrueAnomalyMultiplierCurve = new FloatCurve(new Keyframe[1] { new Keyframe(0f, 1f, 0f, 0f) });
+        public FloatCurve EccentricityMultiplierCurve = new FloatCurve(new Keyframe[1] { new Keyframe(0f, 1f, 0f, 0f) });
 
         public float x_WindSpeed = 0f; //North/South or Radial
         public float y_WindSpeed = 0f; //Vertical
@@ -55,32 +55,8 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.FlowMap
                 }
                 else
                 {
-                    AltitudeSpeedMultCurve = Utils.CreateFlatCurve(1.0);
+                    AltitudeSpeedMultCurve = new FloatCurve(new Keyframe[1] { new Keyframe(0f, 1f, 0f, 0f) });
                 }
-            }
-            if (X_AltitudeSpeedMultCurve == null)
-            {
-                X_AltitudeSpeedMultCurve = Utils.CreateFlatCurve(1.0);
-            }
-            if (Y_AltitudeSpeedMultCurve == null)
-            {
-                Y_AltitudeSpeedMultCurve = Utils.CreateFlatCurve(1.0);
-            }
-            if (Z_AltitudeSpeedMultCurve == null)
-            {
-                Z_AltitudeSpeedMultCurve = Utils.CreateFlatCurve(1.0);
-            }
-            if (WindSpeedMultiplierTimeCurve == null)
-            {
-                WindSpeedMultiplierTimeCurve = Utils.CreateFlatCurve(1.0);
-            }
-            if (TrueAnomalyMultiplierCurve == null)
-            {
-                TrueAnomalyMultiplierCurve = Utils.CreateFlatCurve(1.0);
-            }
-            if (EccentricityMultiplierCurve == null)
-            {
-                EccentricityMultiplierCurve = Utils.CreateFlatCurve(1.0);
             }
         }
 

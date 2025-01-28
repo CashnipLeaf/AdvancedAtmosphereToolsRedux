@@ -180,11 +180,11 @@ namespace AdvancedAtmosphereToolsRedux
             fi.Vessel.atmosphericTemperature = fi.atmosphericTemperature = VH != null ? VH.Temperature : fi.CurrentMainBody.GetFullTemperature(fi.altitude, fi.atmosphereTemperatureOffset);
 
             double molarmass = VH != null ? VH.MolarMass : fi.CurrentMainBody.atmosphereMolarMass;
-            fi.density = fi.Vessel.atmDensity = GetDensity(fi.staticPressurekPa, fi.atmosphericTemperature, molarmass);
+            fi.density = fi.Vessel.atmDensity = AtmoToolsReduxUtils.GetDensity(fi.staticPressurekPa, fi.atmosphericTemperature, molarmass);
             fi.Vessel.dynamicPressurekPa = fi.dynamicPressurekPa = 0.0005 * fi.density * fi.spd * fi.spd;
 
             double adiabaticIndex = VH != null ? VH.AdiabaticIndex : fi.CurrentMainBody.atmosphereAdiabaticIndex;
-            fi.Vessel.speedOfSound = GetSpeedOfSound(fi.staticPressurekPa, fi.density, adiabaticIndex);
+            fi.Vessel.speedOfSound = AtmoToolsReduxUtils.GetSpeedOfSound(fi.staticPressurekPa, fi.density, adiabaticIndex);
             fi.Vessel.mach = fi.mach = fi.Vessel.speedOfSound > 0.0 ? fi.spd / fi.Vessel.speedOfSound : 0.0;
 
             fi.convectiveMachLerp = Math.Pow(UtilMath.Clamp01((fi.mach - PhysicsGlobals.NewtonianMachTempLerpStartMach) / (PhysicsGlobals.NewtonianMachTempLerpEndMach - PhysicsGlobals.NewtonianMachTempLerpStartMach)), PhysicsGlobals.NewtonianMachTempLerpExponent);
@@ -194,12 +194,6 @@ namespace AdvancedAtmosphereToolsRedux
             fi.pseudoReLerpTimeMult = 1.0 / (PhysicsGlobals.TurbulentConvectionEnd - PhysicsGlobals.TurbulentConvectionStart);
             fi.pseudoReDragMult = (double)PhysicsGlobals.DragCurvePseudoReynolds.Evaluate((float)fi.pseudoReynolds);
         }
-
-        //CelestialBody.GetDensity() but manipulated for my own purposes
-        static double GetDensity(double pressure, double temperature, double molarmass) => pressure > 0.0 && temperature > 0.0 ? (pressure * 1000 * molarmass) / (temperature * PhysicsGlobals.IdealGasConstant) : 0.0;
-
-        //CelestialBody.GetSpeedOfSound() but manipulated for my own purposes
-        static double GetSpeedOfSound(double pressure, double density, double adiabaticIndex) => pressure > 0.0 && density > 0.0 ? Math.Sqrt(adiabaticIndex * (pressure * 1000 / density)) : 0.0;
 
         static double CalculateConvectiveCoeff(ModularFlightIntegrator fi) //I would love to clean this up, but it works and I dont wanna touch it.
         {
