@@ -10,7 +10,13 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.BinaryTemperatureData
         private bool disableaxialsunbias = false;
         private bool disableeccentricitybias = false;
 
-        private CelestialBody Body;
+        private CelestialBody Body
+        {
+            get => FlightGlobals.GetBodyByName(body);
+            set => body = value.name;
+        }
+
+        private string body;
 
         public int sizeLon;
         public int sizeLat;

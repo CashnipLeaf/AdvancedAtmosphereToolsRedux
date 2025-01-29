@@ -38,7 +38,7 @@ namespace AdvancedAtmosphereToolsRedux
                 }
                 Vector3d normalSunVector = sunVector / magnitude;
                 Vector3d up = body.bodyTransform.up;
-                Vector3d upAxis = body.GetRelSurfaceNVector(latitude, longitude);
+                Vector3d upAxis = body.GetSurfaceNVector(latitude, longitude);
 
                 double d1 = (double) Vector3.Dot((Vector3)normalSunVector, up);
                 double d2 = (double) Vector3.Dot(up, (Vector3) upAxis);

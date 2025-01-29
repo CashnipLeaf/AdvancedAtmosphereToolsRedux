@@ -27,7 +27,13 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.BinaryWindData
         public float[][,,] WindDataY;
         public float[][,,] WindDataZ;
 
-        public CelestialBody Body;
+        public CelestialBody Body
+        {
+            get => FlightGlobals.GetBodyByName(body);
+            set => body = value.name;
+        }
+
+        private string body;
 
         public BinaryWindData() { }
 

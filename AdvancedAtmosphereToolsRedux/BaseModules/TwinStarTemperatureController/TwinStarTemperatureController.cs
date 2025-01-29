@@ -1,11 +1,10 @@
 ﻿using System;
 using AdvancedAtmosphereToolsRedux.Interfaces;
-using AdvancedAtmosphereToolsRedux.CustomStructs;
 using UnityEngine;
 
 namespace AdvancedAtmosphereToolsRedux.BaseModules.TwinStarTemperatureController
 {
-    public class TwinStarTemperatureController : IBaseTemperature, IRequiresFinalSetup
+    public class TwinStarTemperatureController : IBaseTemperature
     {
         public const int degreesperiteration = 2;
         
@@ -31,10 +30,14 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.TwinStarTemperatureController
         }
         private bool Garbage = true; //all of the above properties must only ever be true
 
-        public CelestialBody Body;
+        public CelestialBody Body
+        {
+            get => FlightGlobals.GetBodyByName(body);
+            set => body = value.name;
+        }
 
-        private CelestialBody PrimaryStar;
-        private CelestialBody SecondaryStar;
+        private string body;
+
         public string secondStarName = string.Empty;
 
         public FloatCurve temperatureCurve = new FloatCurve(new Keyframe[1] { new Keyframe(0f, 0f, 0f, 0f) });
@@ -54,83 +57,22 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.TwinStarTemperatureController
 
         public void Initialize(CelestialBody body)
         {
-            Body = body;
+            this.body = body.name;
 
             if (body.isStar)
             {
                 throw new ArgumentException("TwinStarTemperatureController cannot be applied to a star.");
             }
-        }
 
-        public void FinalSetup()
-        {
-            PrimaryStar = AtmoToolsReduxUtils.GetLocalStar(Body);
-            SecondaryStar = FlightGlobals.GetBodyByName(secondStarName);
-            if (SecondaryStar == null)
+            if (string.IsNullOrEmpty(secondStarName))
             {
-                throw new ArgumentNullException("Could not locate a celestial body named " + secondStarName + ".");
+                throw new ArgumentException("secondaryStar field cannot be blank.");
             }
-            if (!SecondaryStar.isStar)
-            {
-                throw new ArgumentException("Celestial Body " + SecondaryStar.name + " is not a star.");
-            }
-            if (PrimaryStar == SecondaryStar)
-            {
-                throw new InvalidOperationException("Secondary Star cannot be the same body as the Primary.");
-            }
-
-            CelestialBody localplanet = AtmoToolsReduxUtils.GetLocalPlanet(Body);
-            Orbit localorbit = localplanet.orbit;
-            OrbitParams orbit1 = new OrbitParams(localorbit.semiMajorAxis, localorbit.eccentricity, localorbit.inclination, localorbit.LAN, localorbit.argumentOfPeriapsis);
-            
-            if (SecondaryStar.HasChild(PrimaryStar))
-            {
-                CelestialBody secondaryRef = CelestialBody.GetBodyReferencing(PrimaryStar, SecondaryStar);
-                Orbit secondaryorbit = secondaryRef.orbit;
-                OrbitParams orbit2 = new OrbitParams(secondaryorbit.semiMajorAxis, secondaryorbit.eccentricity, secondaryorbit.inclination, secondaryorbit.LAN, secondaryorbit.argumentOfPeriapsis);
-
-                for (int i = 0; i < 360; i += degreesperiteration)
-                {
-                    for (int j = 0; j < 360; j += degreesperiteration)
-                    {
-                        Vector3d vec1 = orbit1.GetCartesian((double)i);
-                        Vector3d vec2 = orbit2.GetCartesian((double)j);
-                        Vector3d combined = vec1 + vec2;
-                        double distance = combined.magnitude;
-                        minDistance = Math.Min(minDistance, distance);
-                        maxDistance = Math.Max(maxDistance, distance);
-                    }
-                }
-            }
-            else if (SecondaryStar.HasParent(PrimaryStar))
-            {
-                CelestialBody secondaryRef = CelestialBody.GetBodyReferencing(SecondaryStar, PrimaryStar);
-                Orbit secondaryorbit = secondaryRef.orbit;
-                OrbitParams orbit2 = new OrbitParams(secondaryorbit.semiMajorAxis, secondaryorbit.eccentricity, secondaryorbit.inclination, secondaryorbit.LAN, secondaryorbit.argumentOfPeriapsis);
-
-                for (int i = 0; i < 360; i += degreesperiteration)
-                {
-                    for (int j = 0; j < 360; j += degreesperiteration)
-                    {
-                        Vector3d vec1 = orbit1.GetCartesian((double)i);
-                        Vector3d vec2 = orbit2.GetCartesian((double)j);
-                        Vector3d combined = vec1 - vec2;
-                        double distance = combined.magnitude;
-                        minDistance = Math.Min(minDistance, distance);
-                        maxDistance = Math.Max(maxDistance, distance);
-                    }
-                }
-            }
-            else
-            {
-                throw new InvalidOperationException("Primary Star is not a child of the Secondary Star or vice versa.");
-            }
-            
-            Utils.LogInfo($"TwinStarTemperatureController for body {Body.name} computed the following:\nMinimum Distance: {Math.Truncate(minDistance)}\nMaximum Distance: {Math.Truncate(maxDistance)}");
         }
 
         public double GetBaseTemperature(double longitude, double latitude, double altitude, double time, double trueAnomaly, double eccentricity)
         {
+            CelestialBody SecondaryStar = FlightGlobals.GetBodyByName(secondStarName);
             double star1temp = AtmoToolsReduxUtils.GetTemperatureAtPosition(Body, longitude, latitude, altitude, trueAnomaly, eccentricity);
 
             double star2basetemp = temperatureCurve.Evaluate((float)altitude);
@@ -147,7 +89,7 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.TwinStarTemperatureController
             }
             Vector3d normalSunVector = sunVector / magnitude;
             Vector3d up = Body.bodyTransform.up;
-            Vector3d upAxis = Body.GetRelSurfaceNVector(latitude, longitude);
+            Vector3d upAxis = Body.GetSurfaceNVector(latitude, longitude);
 
             double d1 = (double)Vector3.Dot((Vector3)normalSunVector, up);
             double d2 = (double)Vector3.Dot(up, (Vector3)upAxis);
@@ -181,7 +123,7 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.TwinStarTemperatureController
             }
 
             Vector3d truesunvector = ScaledSpace.ScaledToLocalSpace(sunVector);
-            double star2eccentricity = (truesunvector.magnitude - minDistance) / (maxDistance - minDistance);
+            double star2eccentricity = minDistance > maxDistance ? 0.0 : UtilMath.Clamp01((truesunvector.magnitude - minDistance) / (maxDistance - minDistance));
 
             double star2latsunmult = (double)temperatureLatitudeSunMultCurve.Evaluate((float)Math.Abs(latitude)) * num9;
             double star2axialbias = (double)temperatureAxialSunBiasCurve.Evaluate((float)trueAnomaly) * (double)temperatureAxialSunMultCurve.Evaluate((float)Math.Abs(latitude));

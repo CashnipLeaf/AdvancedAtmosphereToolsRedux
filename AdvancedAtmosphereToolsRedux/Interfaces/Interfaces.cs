@@ -107,10 +107,4 @@ namespace AdvancedAtmosphereToolsRedux.Interfaces
         string UnsafeAtmosphereMessage { get; set; }
         bool IsAtmosphereUnsafe(double longitude, double latitude, double altitude, double time, double trueAnomaly, double eccentricity);
     }
-
-    //used for setting up parameters that require all bodies to be fully loaded before computing.
-    public interface IRequiresFinalSetup
-    {
-        void FinalSetup();
-    }
 }

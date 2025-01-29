@@ -5,7 +5,13 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.BinaryPressureData
 {
     public class BinaryPressureData : IBasePressure
     {
-        private CelestialBody Body;
+        private CelestialBody Body
+        {
+            get => FlightGlobals.GetBodyByName(body);
+            set => body = value.name;
+        }
+
+        private string body;
 
         public int sizeLon;
         public int sizeLat;

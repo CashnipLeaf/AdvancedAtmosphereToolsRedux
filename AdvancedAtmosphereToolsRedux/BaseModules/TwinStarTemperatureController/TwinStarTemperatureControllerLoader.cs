@@ -41,6 +41,20 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.TwinStarTemperatureController
             set => Value.maxTempAngleOffset = value;
         }
 
+        [ParserTarget("minDistance", Optional = true)]
+        public NumericParser<Double> MinDistance
+        {
+            get => Value.minDistance;
+            set => Value.minDistance = value;
+        }
+
+        [ParserTarget("maxDistance", Optional = true)]
+        public NumericParser<Double> MaxDistance
+        {
+            get => Value.maxDistance;
+            set => Value.maxDistance = value;
+        }
+
         [ParserTargetCollection("temperatureCurve", Key = "key", NameSignificance = NameSignificance.Key)]
         public List<NumericCollectionParser<Single>> TemperatureCurve
         {

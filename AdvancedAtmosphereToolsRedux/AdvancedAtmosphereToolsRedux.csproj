@@ -111,14 +111,10 @@
     <Compile Include="BaseModules\MolarMassCurve\MolarMassCurve.cs" />
     <Compile Include="BaseModules\MolarMassCurve\MolarMassCurveLoader.cs" />
     <Compile Include="BaseModules\OtherPropertiesLoader.cs" />
-    <Compile Include="BaseModules\TestModule\TestModule.cs" />
-    <Compile Include="BaseModules\TestModule\TestModuleLoader.cs" />
     <Compile Include="BaseModules\TwinStarTemperatureController\TwinStarTemperatureController.cs" />
     <Compile Include="BaseModules\TwinStarTemperatureController\TwinStarTemperatureControllerLoader.cs" />
     <Compile Include="CustomSettings.cs" />
-    <Compile Include="CustomStructs\OrbitParams.cs" />
     <Compile Include="ExtensionMethods.cs" />
-    <Compile Include="FinalSetupHandlerAsync.cs" />
     <Compile Include="FlightDynamicsOverrides.cs" />
     <Compile Include="FlightSceneHandler.cs" />
     <Compile Include="HarmonyPatches\AirIntakeHijacker.cs" />
