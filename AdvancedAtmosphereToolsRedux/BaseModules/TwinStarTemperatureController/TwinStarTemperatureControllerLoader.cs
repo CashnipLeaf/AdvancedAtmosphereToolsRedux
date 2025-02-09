@@ -14,17 +14,13 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.TwinStarTemperatureController
     {
         public TwinStarTemperatureController Value { get; set; }
 
-        public TwinStarTemperatureControllerLoader()
-        {
-            Value = new TwinStarTemperatureController();
-        }
+        public TwinStarTemperatureControllerLoader() => Value = new TwinStarTemperatureController();
 
         void IParserPostApplyEventSubscriber.PostApply(ConfigNode node)
         {
             Value.Initialize(generatedBody.celestialBody);
 
-            AtmosphereData data = AtmosphereData.GetOrCreateAtmosphereData(generatedBody.celestialBody);
-            data.SetBaseTemperature(Value);
+            AtmoToolsRedux_Data.SetBaseTemperature(Value, generatedBody.celestialBody);
         }
 
         [ParserTarget("secondaryStar")]

@@ -25,8 +25,7 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.MolarMassCurve
                 {
                     BaseMolarMassCurve = Utility.ListToFloatCurve(value)
                 };
-                AtmosphereData data = AtmosphereData.GetOrCreateAtmosphereData(generatedBody.celestialBody);
-                data.SetBaseMolarMass(molarMassCurve);
+                AtmoToolsRedux_Data.SetBaseMolarMass(molarMassCurve, generatedBody.celestialBody);
             }
         }
     }

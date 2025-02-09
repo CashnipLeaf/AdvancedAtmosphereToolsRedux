@@ -4,14 +4,18 @@ using UnityEngine;
 namespace AdvancedAtmosphereToolsRedux
 {
     // wind adjusted prograde and retrograde markers
-    partial class FlightSceneHandler
+    [KSPAddon(KSPAddon.Startup.Flight, false)]
+    internal class WindAdjustedMarkers : MonoBehaviour
     {
         private NavBall navBall;
         private GameObject progradewind;
         private GameObject retrogradewind;
         private Vector3 navBallLocalScale = new Vector3(44, 44, 44);
 
-        void StartMarkers()
+        private Material progrademat;
+        private Material retrogrademat;
+
+        void Start()
         {
             Settings.CheckGameSettings();
             GameEvents.onUIScaleChange.Add(ResizeIndicators);
@@ -22,7 +26,7 @@ namespace AdvancedAtmosphereToolsRedux
             if (FlightGlobals.fetch != null && FlightGlobals.ready && FlightGlobals.speedDisplayMode == FlightGlobals.SpeedDisplayModes.Surface && Settings.AdjustedIndicatorsEnabled)
             {
                 Vessel activevessel = FlightGlobals.ActiveVessel;
-                AtmoToolsRedux_VesselHandler VH = GetVesselHandler(activevessel);
+                AtmoToolsRedux_VesselHandler VH = FlightSceneHandler.GetVesselHandler(activevessel);
                 if (activevessel != null && VH != null)
                 {
                     Vector3 windvec = VH.InternalAppliedWind;
@@ -40,6 +44,9 @@ namespace AdvancedAtmosphereToolsRedux
                             retrogradewind = Instantiate(navBall.retrogradeVector.gameObject);
                             retrogradewind.transform.parent = navBall.retrogradeVector.parent;
                             retrogradewind.transform.position = navBall.retrogradeVector.position;
+
+                            progrademat = progradewind.GetComponent<MeshRenderer>().materials[0];
+                            retrogrademat = retrogradewind.GetComponent<MeshRenderer>().materials[0];
                         }
                         ResizeIndicators();
 
@@ -51,9 +58,6 @@ namespace AdvancedAtmosphereToolsRedux
                         Vector3 displayVnormalized = displayV / displayV.magnitude;
 
                         bool vthresholdmet = srfv.magnitude > navBall.VectorVelocityThreshold;
-
-                        Material progrademat = progradewind.GetComponent<MeshRenderer>().materials[0];
-                        Material retrogrademat = retrogradewind.GetComponent<MeshRenderer>().materials[0];
 
                         float opacity1 = Mathf.Clamp01(Vector3.Dot(progradewind.transform.localPosition.normalized, Vector3.forward));
                         progrademat.SetFloat("_Opacity", opacity1);
@@ -76,7 +80,7 @@ namespace AdvancedAtmosphereToolsRedux
             retrogradewind?.SetActive(false);
         }
 
-        void DestroyMarkers()
+        void OnDestroy()
         {
             if (progradewind != null)
             {

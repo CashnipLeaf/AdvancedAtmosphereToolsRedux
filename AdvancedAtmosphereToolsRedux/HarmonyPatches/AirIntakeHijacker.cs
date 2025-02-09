@@ -20,7 +20,9 @@ namespace AdvancedAtmosphereToolsRedux.HarmonyPatches
             Vector3 windvec = VH.InternalAppliedWind;
             double submerged = __instance.part.submergedPortion;
             windvec.LerpWith(Vector3.zero, (float)(submerged * submerged));
-            if (!windvec.IsFinite() || Mathf.Approximately(windvec.magnitude, 0.0f))
+
+            double intakechokefactor = VH.IntakeChokeFactor;
+            if ((!windvec.IsFinite() || Mathf.Approximately(windvec.magnitude, 0.0f)) && (!double.IsFinite(intakechokefactor) || intakechokefactor <= 0.0))
             {
                 return true;
             }
@@ -29,7 +31,7 @@ namespace AdvancedAtmosphereToolsRedux.HarmonyPatches
             {
                 if (!__instance.part.ShieldedFromAirstream && !(__instance.checkNode && __instance.node.attachedPart != null))
                 {
-                    if (__instance.vessel.staticPressurekPa >= __instance.kPaThreshold && !(!__instance.vessel.mainBody.atmosphereContainsOxygen && __instance.checkForOxygen))
+                    if (__instance.vessel.staticPressurekPa >= __instance.kPaThreshold && !(!__instance.vessel.mainBody.atmosphereContainsOxygen && __instance.checkForOxygen) && intakechokefactor < 1.0)
                     {
                         bool inocean = __instance.vessel.mainBody.ocean && FlightGlobals.getAltitudeAtPos(__instance.intakeTransform.position, __instance.vessel.mainBody) < 0.0;
 
@@ -51,7 +53,7 @@ namespace AdvancedAtmosphereToolsRedux.HarmonyPatches
                             __instance.airSpeedGui = (float)intakeairspeed;
                             double intakemult = intakeairspeed * (__instance.unitScalar * __instance.area * (double)__instance.machCurve.Evaluate((float)newmach));
                             double airdensity = __instance.underwaterOnly ? __instance.vessel.mainBody.oceanDensity : __instance.vessel.atmDensity;
-                            __instance.resourceUnits = intakemult * airdensity * __instance.densityRecip;
+                            __instance.resourceUnits = intakemult * airdensity * __instance.densityRecip * UtilMath.Clamp01(1.0 - intakechokefactor);
 
                             if (__instance.resourceUnits > 0.0)
                             {
@@ -71,7 +73,34 @@ namespace AdvancedAtmosphereToolsRedux.HarmonyPatches
                                 __instance.resourceUnits = 0.0;
                                 __instance.airFlow = 0.0f;
                             }
-                            __instance.status = Localizer.Format("#autoLOC_235936");
+
+                            if (intakechokefactor >= 1.0) //100% choked. completely choked.
+                            {
+                                __instance.status = Localizer.Format("#LOC_AATR_IntakeCompletelyChoked");
+                            }
+                            else
+                            {
+                                int chokefactorstatus = (int)Math.Floor((intakechokefactor * 4.0) + 0.5);
+                                switch (chokefactorstatus)
+                                {
+                                    case 1: //12.5% to 37.5% choked. slightly choked
+                                        __instance.status = Localizer.Format("#LOC_AATR_IntakeSlightlyChoked");
+                                        break;
+                                    case 2: //37.5% to 62.5% choked. moderately choked
+                                        __instance.status = Localizer.Format("#LOC_AATR_IntakeModeratelyChoked");
+                                        break;
+                                    case 3: //62.5% to 87.5% choked. heavily choked
+                                        __instance.status = Localizer.Format("#LOC_AATR_IntakeHeavilyChoked");
+                                        break;
+                                    case 4: //87.5% to 100% choked. severely choked
+                                        __instance.status = Localizer.Format("#LOC_AATR_IntakeSeverelyChoked");
+                                        break;
+                                    default: //<12.5% choked. nominal
+                                        __instance.status = Localizer.Format("#autoLOC_235936");
+                                        break;
+                                }
+                            }
+
                             return false;
                         }
                     }

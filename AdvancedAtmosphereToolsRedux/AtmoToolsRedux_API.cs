@@ -12,7 +12,7 @@ namespace AdvancedAtmosphereToolsRedux
         {
             if (body.atmosphere && altitude <= body.atmosphereDepth)
             {
-                AtmosphereData data = AtmosphereData.GetAtmosphereData(body);
+                AtmoToolsRedux_Data data = AtmoToolsRedux_Data.GetAtmosphereData(body);
                 return data != null ? data.GetWindVector(longitude, latitude, altitude, time, trueAnomaly, eccentricityBias) : Vector3.zero;
             }
             return Vector3.zero;
@@ -35,7 +35,7 @@ namespace AdvancedAtmosphereToolsRedux
         {
             if (body.atmosphere && altitude <= body.atmosphereDepth)
             {
-                AtmosphereData data = AtmosphereData.GetAtmosphereData(body);
+                AtmoToolsRedux_Data data = AtmoToolsRedux_Data.GetAtmosphereData(body);
                 return data != null ? data.GetTemperature(longitude, latitude, altitude, time, trueAnomaly, eccentricityBias) : AtmoToolsReduxUtils.GetTemperatureAtPosition(body, longitude, latitude, altitude, trueAnomaly, eccentricityBias);
             }
             return PhysicsGlobals.SpaceTemperature;
@@ -45,7 +45,7 @@ namespace AdvancedAtmosphereToolsRedux
         {
             if (body.atmosphere && altitude <= body.atmosphereDepth)
             {
-                AtmosphereData data = AtmosphereData.GetAtmosphereData(body);
+                AtmoToolsRedux_Data data = AtmoToolsRedux_Data.GetAtmosphereData(body);
                 return data != null ? data.GetPressure(longitude, latitude, altitude, time, trueAnomaly, eccentricityBias) : body.GetPressure(altitude);
             }
             return 0.0;
@@ -55,7 +55,7 @@ namespace AdvancedAtmosphereToolsRedux
         {
             if (body.atmosphere && altitude <= body.atmosphereDepth)
             {
-                AtmosphereData data = AtmosphereData.GetAtmosphereData(body);
+                AtmoToolsRedux_Data data = AtmoToolsRedux_Data.GetAtmosphereData(body);
                 return data != null ? data.GetMolarMass(longitude, latitude, altitude, time, trueAnomaly, eccentricityBias) : body.atmosphereMolarMass;
             }
             return body.atmosphereMolarMass;
@@ -65,7 +65,7 @@ namespace AdvancedAtmosphereToolsRedux
         {
             if (body.atmosphere && altitude <= body.atmosphereDepth)
             {
-                AtmosphereData data = AtmosphereData.GetAtmosphereData(body);
+                AtmoToolsRedux_Data data = AtmoToolsRedux_Data.GetAtmosphereData(body);
                 return data != null ? data.GetAdiabaticIndex(longitude, latitude, altitude, time, trueAnomaly, eccentricityBias) : body.atmosphereAdiabaticIndex;
             }
             return body.atmosphereAdiabaticIndex;

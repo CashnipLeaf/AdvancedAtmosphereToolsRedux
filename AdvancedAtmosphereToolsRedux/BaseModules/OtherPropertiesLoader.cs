@@ -13,11 +13,7 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules
         public NumericParser<Double> MaxTempAngleOffset
         {
             get => (double)generatedBody.celestialBody.MaxTempAngleOffset();
-            set 
-            {
-                AtmosphereData data = AtmosphereData.GetOrCreateAtmosphereData(generatedBody.celestialBody); 
-                data.MaxTempAngleOffset = value;
-            }
+            set => AtmoToolsRedux_Data.SetMaxTempAngleOffset(value, generatedBody.celestialBody);
         }
     }
 

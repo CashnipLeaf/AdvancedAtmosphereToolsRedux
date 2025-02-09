@@ -7,7 +7,7 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.GenericWindObject
     public class GenericWindObject : IWindProvider
     {
         public double radius = 1.0;
-        public bool useCylindricalFrame;
+        public bool useCylindricalFrame = false;
 
         public double longitudeCenter = 0.0;
         public FloatCurve LongitudeCenterTimeCurve;
@@ -87,8 +87,8 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.GenericWindObject
             if (useCylindricalFrame)
             {
                 double heading = AtmoToolsReduxUtils.RelativeHeading(lon, lat, lonAtTime, latAtTime, true);
-                Vector3 tangential = new Vector3(zspeed * (float)Math.Sin(heading), 0f, zspeed * (float)Math.Cos(heading));
-                Vector3 radial = new Vector3(xspeed * (float)Math.Cos(heading), 0f, xspeed * (float)Math.Sin(heading));
+                Vector3 tangential = new Vector3(zspeed * (float)Math.Cos(heading), 0f, zspeed * (float)Math.Sin(heading));
+                Vector3 radial = new Vector3(xspeed * (float)Math.Sin(heading), 0f, xspeed * (float)Math.Cos(heading));
                 Vector3 vertical = new Vector3(0f, yspeed, 0f);
                 return tangential + radial + vertical;
             }

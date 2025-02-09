@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
-using Kopernicus.Configuration;
 using UnityEngine;
 
 namespace AdvancedAtmosphereToolsRedux
@@ -63,7 +62,7 @@ namespace AdvancedAtmosphereToolsRedux
         //Celestial Body Extension Methods
         internal static double OceanBulkModulus(this CelestialBody body)
         {
-            AtmosphereData data = AtmosphereData.GetAtmosphereData(body);
+            AtmoToolsRedux_Data data = AtmoToolsRedux_Data.GetAtmosphereData(body);
             return data != null ? data.OceanBulkModulus : AtmoToolsReduxUtils.WaterBulkModulus;
         }
 
@@ -74,7 +73,7 @@ namespace AdvancedAtmosphereToolsRedux
 
         internal static float MaxTempAngleOffset(this CelestialBody body)
         {
-            AtmosphereData data = AtmosphereData.GetAtmosphereData(body);
+            AtmoToolsRedux_Data data = AtmoToolsRedux_Data.GetAtmosphereData(body);
             return (float)(data != null ? data.MaxTempAngleOffset : AtmoToolsReduxUtils.DefaultMaxTempAngleOffset);
         }
     }

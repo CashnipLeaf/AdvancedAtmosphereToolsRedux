@@ -21,7 +21,7 @@ namespace AdvancedAtmosphereToolsRedux.HarmonyPatches
             {
                 return true;
             }
-            AtmosphereData atmodata = AtmosphereData.GetAtmosphereData(body);
+            AtmoToolsRedux_Data atmodata = AtmoToolsRedux_Data.GetAtmosphereData(body);
             if (body.atmosphere && vessel.altitude < body.atmosphereDepth && atmodata != null)
             {
                 double time = Planetarium.GetUniversalTime();

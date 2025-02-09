@@ -23,9 +23,9 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.BinaryWindData
         public string PathY;
         public string PathZ;
 
-        public float[][,,] WindDataX;
-        public float[][,,] WindDataY;
-        public float[][,,] WindDataZ;
+        public float[][,,] WindDataX; //north/south
+        public float[][,,] WindDataY; //vertical
+        public float[][,,] WindDataZ; //east/west
 
         public CelestialBody Body
         {

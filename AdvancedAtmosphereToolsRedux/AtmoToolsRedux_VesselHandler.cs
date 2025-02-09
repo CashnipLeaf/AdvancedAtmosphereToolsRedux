@@ -3,7 +3,6 @@ using UnityEngine;
 
 namespace AdvancedAtmosphereToolsRedux
 {
-    //TODO: add aero and hydrodynamic drag/lift stats
     internal sealed class AtmoToolsRedux_VesselHandler : VesselModule
     {
         FlightIntegrator CacheFI;
@@ -56,6 +55,14 @@ namespace AdvancedAtmosphereToolsRedux
             private set => adiabaticindex = Math.Max(value, 0.0);
         }
 
+        //TODO: implement the rest of this thing's functionality
+        private double chokefactor = 0.0;
+        internal double IntakeChokeFactor
+        {
+            get => chokefactor;
+            set => chokefactor = UtilMath.Clamp01(value);
+        }
+
         public override int GetOrder() => -5;
 
         public override bool ShouldBeActive() => vessel.loaded;
@@ -76,14 +83,7 @@ namespace AdvancedAtmosphereToolsRedux
         {
             if (CacheFI == null)
             {
-                foreach (VesselModule VM in vessel.vesselModules)
-                {
-                    if (VM is FlightIntegrator flight)
-                    {
-                        CacheFI = flight;
-                        break;
-                    }
-                }
+                CacheFI = AtmoToolsReduxUtils.GetFIFromVessel(vessel);
             }
 
             RawWind.Zero();
@@ -104,17 +104,13 @@ namespace AdvancedAtmosphereToolsRedux
             double time = Planetarium.GetUniversalTime();
             CelestialBody mainBody = vessel.mainBody;
 
-            DisableMultiplier = 1.0f;
-            if (vessel != null)
+            if (vessel.easingInToSurface)
             {
-                if (vessel.easingInToSurface)
-                {
-                    DisableMultiplier = 0.0f;
-                }
-                else
-                {
-                    DisableMultiplier = vessel.LandedOrSplashed && Settings.DisableWindWhenStationary ? (float)UtilMath.Lerp(0.0, 1.0, (vessel.srfSpeed - 5.0) * 0.2) : 1.0f;
-                }
+                DisableMultiplier = 0.0f;
+            }
+            else
+            {
+                DisableMultiplier = vessel.LandedOrSplashed && Settings.DisableWindWhenStationary ? (float)UtilMath.Lerp(0.0, 1.0, (vessel.srfSpeed - 5.0) * 0.2) : 1.0f;
             }
 
             if (mainBody == null || !mainBody.atmosphere || altitude > mainBody.atmosphereDepth)
@@ -124,12 +120,13 @@ namespace AdvancedAtmosphereToolsRedux
                 Temperature = PhysicsGlobals.SpaceTemperature;
                 MolarMass = mainBody.atmosphereMolarMass;
                 AdiabaticIndex = mainBody.atmosphereAdiabaticIndex;
+                IntakeChokeFactor = 0.0;
                 return;
             }
 
             AtmoToolsReduxUtils.GetTrueAnomalyEccentricity(mainBody, out double trueAnomaly, out double eccentricitybias);
 
-            AtmosphereData bodydata = AtmosphereData.GetAtmosphereData(mainBody);
+            AtmoToolsRedux_Data bodydata = AtmoToolsRedux_Data.GetAtmosphereData(mainBody.name);
             if (bodydata != null)
             {
                 //Wind
@@ -148,6 +145,7 @@ namespace AdvancedAtmosphereToolsRedux
                 }
 
                 //Ocean Currents (unused)
+                /*
                 try
                 {
                     RawOceanCurrent = bodydata.GetOceanCurrentVector(longitude, latitude, altitude, time, trueAnomaly, eccentricitybias);
@@ -161,6 +159,7 @@ namespace AdvancedAtmosphereToolsRedux
                     AppliedOceanCurrent.Zero();
                     InternalAppliedOceanCurrent.Zero();
                 }
+                */
 
                 //Temperature
                 try
@@ -169,7 +168,7 @@ namespace AdvancedAtmosphereToolsRedux
                 }
                 catch
                 {
-                    double temperatureoffset = CacheFI != null ? CacheFI.atmosphereTemperatureOffset : 0.0;
+                    double temperatureoffset = CacheFI?.atmosphereTemperatureOffset ?? 0.0;
                     Temperature = mainBody.GetFullTemperature(altitude, temperatureoffset);
                 }
 
@@ -208,15 +207,25 @@ namespace AdvancedAtmosphereToolsRedux
                 {
                     AdiabaticIndex = mainBody.atmosphereAdiabaticIndex;
                 }
+
+                try
+                {
+                    IntakeChokeFactor = bodydata.GetAirIntakeChokeFactor(longitude, latitude, altitude, time, trueAnomaly, eccentricitybias);
+                }
+                catch
+                {
+                    IntakeChokeFactor = 0.0;
+                }
             }
             else
             {
                 Pressure = mainBody.GetPressure(altitude);
                 FIPressureMultiplier = 1.0;
-                double temperatureoffset = CacheFI != null ? CacheFI.atmosphereTemperatureOffset : 0.0;
+                double temperatureoffset = CacheFI?.atmosphereTemperatureOffset ?? 0.0;
                 Temperature = mainBody.GetFullTemperature(altitude, temperatureoffset);
                 MolarMass = mainBody.atmosphereMolarMass;
                 AdiabaticIndex = mainBody.atmosphereAdiabaticIndex;
+                IntakeChokeFactor = 0.0;
             }
         }
 

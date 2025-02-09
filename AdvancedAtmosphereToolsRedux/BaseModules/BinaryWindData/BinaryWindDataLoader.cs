@@ -11,18 +11,14 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.BinaryWindData
     {
         public BinaryWindData Value {  get; set; }
 
-        public BinaryWindDataLoader()
-        {
-            Value = new BinaryWindData(); 
-        }
+        public BinaryWindDataLoader() => Value = new BinaryWindData();
 
         //initialize the stuff
         void IParserPostApplyEventSubscriber.PostApply(ConfigNode node)
         {
             Value.Initialize(generatedBody.celestialBody);
 
-            AtmosphereData data = AtmosphereData.GetOrCreateAtmosphereData(generatedBody.celestialBody);
-            data.AddWindProvider(Value);
+            AtmoToolsRedux_Data.AddWindProvider(Value, generatedBody.celestialBody);
         }
 
         [ParserTarget("sizeLon")]
@@ -74,21 +70,21 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.BinaryWindData
             set => Value.ScaleFactor = value;
         }
 
-        [ParserTarget("pathX")]
+        [ParserTarget("pathX")] //north/south
         public string PathX
         {
             get => Value.PathX;
             set => Value.PathX = value;
         }
 
-        [ParserTarget("pathY")]
+        [ParserTarget("pathY")] //vertical
         public string PathY
         {
             get => Value.PathY;
             set => Value.PathY = value;
         }
 
-        [ParserTarget("pathZ")]
+        [ParserTarget("pathZ")] //east/west
         public string PathZ
         {
             get => Value.PathZ;

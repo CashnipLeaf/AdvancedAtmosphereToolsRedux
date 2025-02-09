@@ -12,7 +12,7 @@ namespace AdvancedAtmosphereToolsRedux
     [KSPAddon(KSPAddon.Startup.Flight, false)]
     partial class FlightSceneHandler : MonoBehaviour
     {
-        internal static Dictionary<Vessel, AtmoToolsRedux_VesselHandler> VesselHandlerCache;
+        private static Dictionary<Vessel, AtmoToolsRedux_VesselHandler> VesselHandlerCache;
 
         void Awake()
         {
@@ -25,12 +25,6 @@ namespace AdvancedAtmosphereToolsRedux
             }
         }
 
-        void Start()
-        {
-            StartGUI();
-            StartMarkers();
-        }
-
         void FixedUpdate()
         {
             Settings.CheckGameSettings();
@@ -39,8 +33,6 @@ namespace AdvancedAtmosphereToolsRedux
         void OnDestroy()
         {
             VesselHandlerCache.Clear();
-            DestroyGUI();
-            DestroyMarkers();
         }
 
         //cache the vessel handlers to speed things up
@@ -87,14 +79,14 @@ namespace AdvancedAtmosphereToolsRedux
         {
             body.GetLatLonAlt(pos, out double lat, out double lon, out double alt);
             AtmoToolsReduxUtils.GetTrueAnomalyEccentricity(body, out double trueAnomaly, out double eccentricity);
-            AtmosphereData data = AtmosphereData.GetAtmosphereData(body);
+            AtmoToolsRedux_Data data = AtmoToolsRedux_Data.GetAtmosphereData(body);
             return data != null ? data.GetTemperature(lon, lat, alt, time, trueAnomaly, eccentricity) : AtmoToolsReduxUtils.GetTemperatureAtPosition(body, lon, lat, alt, trueAnomaly, eccentricity);
         }
         internal double GetThePressure(CelestialBody body, Vector3d pos, double time)
         {
             body.GetLatLonAlt(pos, out double lat, out double lon, out double alt);
             AtmoToolsReduxUtils.GetTrueAnomalyEccentricity(body, out double trueAnomaly, out double eccentricity);
-            AtmosphereData data = AtmosphereData.GetAtmosphereData(body);
+            AtmoToolsRedux_Data data = AtmoToolsRedux_Data.GetAtmosphereData(body);
             return data != null ? data.GetPressure(lon, lat, alt, time, trueAnomaly, eccentricity) : body.GetPressure(alt);
         }
 

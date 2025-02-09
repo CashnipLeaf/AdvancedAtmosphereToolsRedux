@@ -10,12 +10,6 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.BinaryTemperatureData
         private bool disableaxialsunbias = false;
         private bool disableeccentricitybias = false;
 
-        private CelestialBody Body
-        {
-            get => FlightGlobals.GetBodyByName(body);
-            set => body = value.name;
-        }
-
         private string body;
 
         public int sizeLon;
@@ -62,7 +56,7 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.BinaryTemperatureData
 
         public void Initialize(CelestialBody body)
         {
-            Body = body;
+            this.body = body.name;
             if (string.IsNullOrEmpty(Path))
             {
                 throw new ArgumentNullException();
@@ -72,7 +66,9 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.BinaryTemperatureData
 
         public double GetBaseTemperature(double lon, double lat, double alt, double time, double trueAnomaly, double eccentricity)
         {
-            double truetop = Math.Min(modeltop, Body.atmosphereDepth);
+            CelestialBody currentbody = FlightGlobals.GetBodyByName(body);
+
+            double truetop = Math.Min(modeltop, currentbody.atmosphereDepth);
             double normalizedlon = UtilMath.WrapAround(lon + 360.0 - LonOffset, 0.0, 360.0) / 360.0;
             double normalizedlat = (180.0 - (lat + 90.0)) / 180.0;
             double normalizedalt = UtilMath.Clamp01(alt / truetop);
@@ -105,7 +101,7 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.BinaryTemperatureData
             double temp = UtilMath.Lerp(UtilMath.Lerp((double)BottomPlane1, (double)TopPlane1, lerpz), UtilMath.Lerp((double)BottomPlane2, (double)TopPlane2, lerpz), lerpt);
             if (alt > truetop)
             {
-                AtmoToolsReduxUtils.GetTemperatureWithComponents(Body, lon, lat, alt, trueAnomaly, eccentricity, out double basetemp, out double latbias, out double latsunmult, out double axialbias, out double eccentricitybias);
+                AtmoToolsReduxUtils.GetTemperatureWithComponents(currentbody, lon, lat, alt, trueAnomaly, eccentricity, out double basetemp, out double latbias, out double latsunmult, out double axialbias, out double eccentricitybias);
                 double tempoffset = 0.0;
                 if (DisableLatitudeBias)
                 {
@@ -123,8 +119,8 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.BinaryTemperatureData
                 {
                     tempoffset += eccentricitybias;
                 }
-                tempoffset *= (double)Body.atmosphereTemperatureSunMultCurve.Evaluate((float)alt);
-                double extralerp = (alt - truetop) / (Body.atmosphereDepth - truetop);
+                tempoffset *= (double)currentbody.atmosphereTemperatureSunMultCurve.Evaluate((float)alt);
+                double extralerp = (alt - truetop) / (currentbody.atmosphereDepth - truetop);
                 return UtilMath.Lerp(temp, basetemp + tempoffset, Math.Sqrt(extralerp));
             }
             else

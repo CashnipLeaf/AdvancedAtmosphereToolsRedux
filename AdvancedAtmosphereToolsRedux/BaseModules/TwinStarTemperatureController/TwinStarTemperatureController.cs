@@ -6,8 +6,6 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.TwinStarTemperatureController
 {
     public class TwinStarTemperatureController : IBaseTemperature
     {
-        public const int degreesperiteration = 2;
-        
         public bool DisableLatitudeBias
         {
             get => true;
@@ -29,12 +27,6 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.TwinStarTemperatureController
             set => Garbage = value;
         }
         private bool Garbage = true; //all of the above properties must only ever be true
-
-        public CelestialBody Body
-        {
-            get => FlightGlobals.GetBodyByName(body);
-            set => body = value.name;
-        }
 
         private string body;
 
@@ -72,13 +64,14 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.TwinStarTemperatureController
 
         public double GetBaseTemperature(double longitude, double latitude, double altitude, double time, double trueAnomaly, double eccentricity)
         {
+            CelestialBody mainbody = FlightGlobals.GetBodyByName(body);
             CelestialBody SecondaryStar = FlightGlobals.GetBodyByName(secondStarName);
-            double star1temp = AtmoToolsReduxUtils.GetTemperatureAtPosition(Body, longitude, latitude, altitude, trueAnomaly, eccentricity);
+            double star1temp = AtmoToolsReduxUtils.GetTemperatureAtPosition(mainbody, longitude, latitude, altitude, trueAnomaly, eccentricity);
 
             double star2basetemp = temperatureCurve.Evaluate((float)altitude);
             double star2latbias = temperatureLatitudeBiasCurve.Evaluate((float)Math.Abs(latitude));
 
-            Vector3d position = ScaledSpace.LocalToScaledSpace(Body.GetWorldSurfacePosition(latitude, longitude, altitude));
+            Vector3d position = ScaledSpace.LocalToScaledSpace(mainbody.GetWorldSurfacePosition(latitude, longitude, altitude));
 
             Vector3d localstarposition = SecondaryStar.scaledBody.transform.position;
             Vector3d sunVector = localstarposition - position;
@@ -88,8 +81,8 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.TwinStarTemperatureController
                 magnitude = 1.0;
             }
             Vector3d normalSunVector = sunVector / magnitude;
-            Vector3d up = Body.bodyTransform.up;
-            Vector3d upAxis = Body.GetSurfaceNVector(latitude, longitude);
+            Vector3d up = mainbody.bodyTransform.up;
+            Vector3d upAxis = mainbody.GetSurfaceNVector(latitude, longitude);
 
             double d1 = (double)Vector3.Dot((Vector3)normalSunVector, up);
             double d2 = (double)Vector3.Dot(up, (Vector3)upAxis);
@@ -106,7 +99,7 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.TwinStarTemperatureController
             double t1 = (1.0 + Math.Cos(d4 - d3)) * 0.5;
             double num1 = (1.0 + Math.Cos(d4 + d3)) * 0.5;
 
-            double sunmult = (1.0 + (double)Vector3.Dot((Vector3)normalSunVector, Quaternion.AngleAxis(maxTempAngleOffset * Mathf.Sign((float)Body.rotationPeriod), up) * (Vector3)upAxis)) * 0.5;
+            double sunmult = (1.0 + (double)Vector3.Dot((Vector3)normalSunVector, Quaternion.AngleAxis(maxTempAngleOffset * Mathf.Sign((float)mainbody.rotationPeriod), up) * (Vector3)upAxis)) * 0.5;
             double num8 = t1 - num1;
             double num9;
             if (num8 > 0.001)

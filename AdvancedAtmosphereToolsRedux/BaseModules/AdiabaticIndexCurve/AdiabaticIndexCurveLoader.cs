@@ -25,8 +25,7 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.AdiabaticIndexCurve
                 {
                     BaseAdiabaticIndexCurve = Utility.ListToFloatCurve(value)
                 };
-                AtmosphereData data = AtmosphereData.GetOrCreateAtmosphereData(generatedBody.celestialBody);
-                data.SetBaseAdiabaticIndex(adiabaticIndexCurve);
+                AtmoToolsRedux_Data.SetBaseAdiabaticIndex(adiabaticIndexCurve, generatedBody.celestialBody);
             }
         }
     }

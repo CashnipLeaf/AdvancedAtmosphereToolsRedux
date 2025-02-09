@@ -5,12 +5,6 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.BinaryPressureData
 {
     public class BinaryPressureData : IBasePressure
     {
-        private CelestialBody Body
-        {
-            get => FlightGlobals.GetBodyByName(body);
-            set => body = value.name;
-        }
-
         private string body;
 
         public int sizeLon;
@@ -33,7 +27,7 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.BinaryPressureData
 
         public void Initialize(CelestialBody body)
         {
-            Body = body;
+            this.body = body.name;
             if (string.IsNullOrEmpty(Path))
             {
                 throw new ArgumentNullException();
@@ -43,7 +37,9 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.BinaryPressureData
 
         public double GetBasePressure(double lon, double lat, double alt, double time, double trueAnomaly, double eccentricity)
         {
-            double truetop = Math.Min(modeltop, Body.atmosphereDepth);
+            CelestialBody currentbody = FlightGlobals.GetBodyByName(body);
+
+            double truetop = Math.Min(modeltop, currentbody.atmosphereDepth);
             double normalizedlon = UtilMath.WrapAround(lon + 360.0 - LonOffset, 0.0, 360.0) / 360.0;
             double normalizedlat = (180.0 - (lat + 90.0)) / 180.0;
             double normalizedalt = UtilMath.Clamp01(alt / truetop);
@@ -79,11 +75,11 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.BinaryPressureData
             double pressure = Utils.InterpolatePressure(BottomPlaneFinal, TopPlaneFinal, lerpz) * 0.001;
             if (alt > truetop)
             {
-                double extralerp = (alt - truetop) / (Body.atmosphereDepth - truetop);
-                double press0 = Body.GetPressure(0);
-                double press1 = Body.GetPressure(truetop);
+                double extralerp = (alt - truetop) / (currentbody.atmosphereDepth - truetop);
+                double press0 = currentbody.GetPressure(0);
+                double press1 = currentbody.GetPressure(truetop);
                 double scaleheight = truetop / Math.Log(press0 / press1, Math.E);
-                return UtilMath.Lerp(pressure * Math.Pow(Math.E, -((alt - truetop) / scaleheight)), Body.GetPressure(alt), Math.Pow(extralerp, 0.125));
+                return UtilMath.Lerp(pressure * Math.Pow(Math.E, -((alt - truetop) / scaleheight)), currentbody.GetPressure(alt), Math.Pow(extralerp, 0.125));
             }
             else
             {

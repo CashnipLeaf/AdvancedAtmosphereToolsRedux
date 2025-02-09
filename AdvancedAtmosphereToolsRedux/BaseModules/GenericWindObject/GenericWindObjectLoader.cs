@@ -14,17 +14,13 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.GenericWindObject
     {
         public GenericWindObject Value {  get; set; }
 
-        public GenericWindObjectLoader()
-        {
-            Value = new GenericWindObject();
-        }
+        public GenericWindObjectLoader() => Value = new GenericWindObject();
 
         void IParserPostApplyEventSubscriber.PostApply(ConfigNode node)
         {
             Value.Initialize();
 
-            AtmosphereData data = AtmosphereData.GetOrCreateAtmosphereData(generatedBody.celestialBody);
-            data.AddWindProvider(Value);
+            AtmoToolsRedux_Data.AddWindProvider(Value, generatedBody.celestialBody);
         }
 
         [ParserTarget("longitudeCenter", Optional = true)]

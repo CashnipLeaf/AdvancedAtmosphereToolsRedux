@@ -11,10 +11,7 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.GenericUnsafeAtmosphere
     {
         public GenericUnsafeAtmosphere Value { get; set; }
 
-        public GenericUnsafeAtmosphereLoader()
-        {
-            Value = new GenericUnsafeAtmosphere();
-        }
+        public GenericUnsafeAtmosphereLoader() => Value = new GenericUnsafeAtmosphere();
 
         [ParserTarget("isAtmosphereUnsafe", Optional = true)]
         public NumericParser<Boolean> IsAtmoUnsafe
@@ -25,8 +22,7 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.GenericUnsafeAtmosphere
                 if (value)
                 {
                     Value.IsAtmoUnsafe = true;
-                    AtmosphereData data = AtmosphereData.GetOrCreateAtmosphereData(generatedBody.celestialBody);
-                    data.SetUnsafeAtmosphereIndicator(Value);
+                    AtmoToolsRedux_Data.SetUnsafeAtmosphereIndicator(Value, generatedBody.celestialBody);
                 }
             }
         }

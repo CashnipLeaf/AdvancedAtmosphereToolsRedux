@@ -94,6 +94,35 @@ namespace AdvancedAtmosphereToolsRedux
             return LocalToWorld;
         }
 
+        public static void GetUpVectorAndSunVector(CelestialBody mainBody, CelestialBody targetBody, double longitude, double latitude, double altitude, out Vector3d up, out Vector3d sunvec)
+        {
+            up = mainBody.GetSurfaceNVector(longitude, latitude);
+            Vector3d posOnBody = ScaledSpace.LocalToScaledSpace(mainBody.GetWorldSurfacePosition(latitude, longitude, altitude));
+            Vector3d targetBodyPos = targetBody.scaledBody.transform.position;
+            Vector3d sunVector = targetBodyPos - posOnBody;
+            double magnitude = sunVector.magnitude;
+            if (magnitude == 0.0)
+            {
+                magnitude = 1.0;
+            }
+            sunvec = sunVector / magnitude;
+        }
+
+        public static FlightIntegrator GetFIFromVessel(Vessel vessel)
+        {
+            if (vessel != null)
+            {
+                foreach (VesselModule VM in vessel.vesselModules)
+                {
+                    if (VM is FlightIntegrator flight)
+                    {
+                        return flight;
+                    }
+                }
+            }
+            return null;
+        }
+
         //--------------------LOCATION UTILITIES---------------------------
         //Calculate the Great Circle angle between two points.Remember, planets are spherical. Mostly, anyways.
         public static double GreatCircleAngle(double lon1, double lat1, double lon2, double lat2, bool radians = false)
@@ -128,6 +157,25 @@ namespace AdvancedAtmosphereToolsRedux
                 heading *= -1;
             }
             return radians ? heading : heading * UtilMath.Rad2Deg;
+        }
+
+        public static void ConvertToTidallyLockedCoordinates(double substellarLon, double lon, double lat, out double lonTL, out double latTL)
+        {
+            double anglefromsubstellar = GreatCircleAngle(lon, lat, substellarLon, 0.0);
+            latTL = 90d - anglefromsubstellar;
+
+            double relheading = RelativeHeading(lon, lat, substellarLon, 0.0);
+
+            lonTL = relheading - 180;
+
+            if (lonTL > 180)
+            {
+                lonTL -= 360;
+            }
+            if (lonTL < -180)
+            {
+                lonTL += 360;
+            }
         }
 
         //--------------------CELESTIAL BODY UTILITIES---------------------

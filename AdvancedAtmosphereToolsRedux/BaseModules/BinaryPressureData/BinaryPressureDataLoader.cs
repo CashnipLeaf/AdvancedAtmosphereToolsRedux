@@ -11,18 +11,14 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.BinaryPressureData
     {
         public BinaryPressureData Value { get; set; }
 
-        public BinaryPressureDataLoader()
-        {
-            Value = new BinaryPressureData();
-        }
+        public BinaryPressureDataLoader() => Value = new BinaryPressureData();
 
         //initialize the stuff
         void IParserPostApplyEventSubscriber.PostApply(ConfigNode node)
         {
             Value.Initialize(generatedBody.celestialBody);
 
-            AtmosphereData data = AtmosphereData.GetOrCreateAtmosphereData(generatedBody.celestialBody);
-            data.SetBasePressure(Value);
+            AtmoToolsRedux_Data.SetBasePressure(Value, generatedBody.celestialBody);
         }
 
         [ParserTarget("sizeLon")]

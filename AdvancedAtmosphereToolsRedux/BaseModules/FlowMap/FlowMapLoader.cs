@@ -14,17 +14,13 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.FlowMap
     {
         public FlowMap Value { get; set; }
         
-        public FlowMapLoader()
-        {
-            Value = new FlowMap();
-        }
+        public FlowMapLoader() => Value = new FlowMap();
 
         void IParserPostApplyEventSubscriber.PostApply(ConfigNode node)
         {
             Value.Initialize();
 
-            AtmosphereData data = AtmosphereData.GetOrCreateAtmosphereData(generatedBody.celestialBody);
-            data.AddWindProvider(Value);
+            AtmoToolsRedux_Data.AddWindProvider(Value, generatedBody.celestialBody);
         }
 
         [ParserTarget("path")]

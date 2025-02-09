@@ -6,7 +6,8 @@ using ToolbarControl_NS;
 
 namespace AdvancedAtmosphereToolsRedux
 {
-    partial class FlightSceneHandler
+    [KSPAddon(KSPAddon.Startup.Flight, false)]
+    internal class GUIHandler : MonoBehaviour
     {
         private ToolbarControl toolbarController;
         private bool toolbarButtonAdded = false;
@@ -36,7 +37,7 @@ namespace AdvancedAtmosphereToolsRedux
         private static readonly string[] directions = { "N", "S", "E", "W" };
         private static readonly string[] cardinaldirs = { "N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW" };
 
-        void StartGUI()
+        void Start()
         {
             //add to toolbar
             ApplicationLauncher.AppScenes scenes = ApplicationLauncher.AppScenes.FLIGHT | ApplicationLauncher.AppScenes.MAPVIEW;
@@ -50,7 +51,7 @@ namespace AdvancedAtmosphereToolsRedux
             Settings.buttondisablewindstationary = Settings.buttonindicatorsenabled = false;
         }
 
-        void DestroyGUI()
+        void OnDestroy()
         {
             RemoveToolbarButton();
             GameEvents.onGUIApplicationLauncherDestroyed.Remove(RemoveToolbarButton);
@@ -97,7 +98,7 @@ namespace AdvancedAtmosphereToolsRedux
             GUILayout.EndHorizontal();
 
             Vessel Activevessel = FlightGlobals.ActiveVessel;
-            AtmoToolsRedux_VesselHandler VH = GetVesselHandler(Activevessel);
+            AtmoToolsRedux_VesselHandler VH = FlightSceneHandler.GetVesselHandler(Activevessel);
 
             if (Activevessel != null && Activevessel.mainBody != null && VH != null)
             {

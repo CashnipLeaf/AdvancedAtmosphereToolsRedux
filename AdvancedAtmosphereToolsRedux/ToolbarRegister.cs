@@ -8,7 +8,7 @@ namespace AdvancedAtmosphereToolsRedux
     {
         void Start()
         {
-            ToolbarControl.RegisterMod(FlightSceneHandler.modID, FlightSceneHandler.modNAME);
+            ToolbarControl.RegisterMod(GUIHandler.modID, GUIHandler.modNAME);
         }
     }
 }

@@ -49,6 +49,21 @@ namespace AdvancedAtmosphereToolsRedux
         //Apparently no such function exists for integers in either UtilMath or Mathf. Why?
         internal static int Clamp(int value, int min, int max) => Math.Min(Math.Max(value, min), max);
 
+        internal static FloatCurve CreateCurveFromNode(ConfigNode cn, string curvekey)
+        {
+            ConfigNode curvenode = new ConfigNode();
+            if (cn.TryGetNode(curvekey, ref curvenode))
+            {
+                FloatCurve newcurve = new FloatCurve();
+                newcurve.Load(curvenode);
+                return newcurve;
+            }
+            else
+            {
+                return new FloatCurve(new Keyframe[1] { new Keyframe(0f, 0f, 0f, 0f) });
+            }
+        }
+
         internal static FloatCurve CreateAltitudeCurve(double min, double max, double lowerfade, double upperfade) => CreateAltitudeCurve((float)min, (float)max, (float)lowerfade, (float)upperfade);
 
         internal static FloatCurve CreateAltitudeCurve(float min, float max, float lowerfade, float upperfade)
@@ -90,6 +105,7 @@ namespace AdvancedAtmosphereToolsRedux
         {
             int Blocksize = lon * lat * sizeof(float);
             float[][,,] newarray = new float[steps][,,];
+
             string gdpath = GameDataPath + path;
             if (!File.Exists(gdpath))
             {
