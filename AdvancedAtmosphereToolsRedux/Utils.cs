@@ -6,11 +6,11 @@ namespace AdvancedAtmosphereToolsRedux
 {
     internal static class Utils
     {
-        internal static string GameDataPath => KSPUtil.ApplicationRootPath + "GameData/";
+        internal static string GameDataPath => $"{KSPUtil.ApplicationRootPath}GameData/";
         internal const string Version = "1.0.0";
-        internal static void LogInfo(string message) => Debug.Log("[AdvAtmoToolsRedux]: " + message);
-        internal static void LogWarning(string message) => Debug.Log("[AdvAtmoToolsRedux][WARNING]: " + message);
-        internal static void LogError(string message) => Debug.Log("[AdvAtmoToolsRedux][ERROR]: " + message);
+        internal static void LogInfo(string message) => Debug.Log($"[AdvAtmoToolsRedux]: {message}");
+        internal static void LogWarning(string message) => Debug.Log($"[AdvAtmoToolsRedux][WARNING]: {message}");
+        internal static void LogError(string message) => Debug.Log($"[AdvAtmoToolsRedux][ERROR]: {message}");
 
         
         internal static float BiLerp(float first1, float second1, float first2, float second2, float by1, float by2)
@@ -93,7 +93,7 @@ namespace AdvancedAtmosphereToolsRedux
             string gdpath = GameDataPath + path;
             if (!File.Exists(gdpath))
             {
-                throw new FileNotFoundException("Could not locate Texture file at file path: " + path + " . Verify that the given file path is correct.");
+                throw new FileNotFoundException($"Could not locate Texture file at file path: {path} . Verify that the given file path is correct.");
             }
             byte[] fileData = File.ReadAllBytes(gdpath);
             Texture2D tex = new Texture2D(2, 2);
@@ -109,7 +109,7 @@ namespace AdvancedAtmosphereToolsRedux
             string gdpath = GameDataPath + path;
             if (!File.Exists(gdpath))
             {
-                throw new FileNotFoundException("Could not locate Binary Data file at file path: " + path + " . Verify that the given file path is correct.");
+                throw new FileNotFoundException($"Could not locate Binary Data file at file path: {path} . Verify that the given file path is correct.");
             }
             using (BinaryReader reader = new BinaryReader(File.OpenRead(gdpath)))
             {

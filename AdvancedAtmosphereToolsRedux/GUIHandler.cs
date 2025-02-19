@@ -17,7 +17,7 @@ namespace AdvancedAtmosphereToolsRedux
         internal const string modNAME = "AdvAtmoToolsRedux";
         internal const string modID = "AdvAtmoToolsRedux_NS";
 
-        private string UIHeader => "AdvAtmoToolsRedux v" + Utils.Version;
+        private string UIHeader => $"AdvAtmoToolsRedux v{Utils.Version}";
 
         private Rect windowPos;
         private static float Xpos => 100f * GameSettings.UI_SCALE;

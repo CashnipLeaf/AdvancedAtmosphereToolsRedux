@@ -108,10 +108,14 @@
     <Compile Include="BaseModules\FlowMap\FlowMapLoader.cs" />
     <Compile Include="BaseModules\FractionalPressureModifierMap\FractionalPressureModifierMap.cs" />
     <Compile Include="BaseModules\FractionalPressureModifierMap\FractionalPressureModifierMapLoader.cs" />
+    <Compile Include="BaseModules\GenericTradeWinds\GenericTradeWinds.cs" />
+    <Compile Include="BaseModules\GenericTradeWinds\GenericTradeWindsLoader.cs" />
     <Compile Include="BaseModules\GenericUnsafeAtmosphere\GenericUnsafeAtmosphere.cs" />
     <Compile Include="BaseModules\GenericUnsafeAtmosphere\GenericUnsafeAtmosphereLoader.cs" />
     <Compile Include="BaseModules\GenericWindObject\GenericWindObject.cs" />
     <Compile Include="BaseModules\GenericWindObject\GenericWindObjectLoader.cs" />
+    <Compile Include="BaseModules\GlobalIntakeChokeFactor\GlobalIntakeChokeFactor.cs" />
+    <Compile Include="BaseModules\GlobalIntakeChokeFactor\GlobalIntakeChokeFactorLoader.cs" />
     <Compile Include="BaseModules\LatitudeSunMultModifierMap\LatitudeSunMultModifierMap.cs" />
     <Compile Include="BaseModules\LatitudeSunMultModifierMap\LatitudeSunMultModifierMapLoader.cs" />
     <Compile Include="BaseModules\MolarMassCurve\MolarMassCurve.cs" />

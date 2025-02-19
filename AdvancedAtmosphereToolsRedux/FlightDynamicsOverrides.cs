@@ -68,7 +68,7 @@ namespace AdvancedAtmosphereToolsRedux
                 }
                 catch (Exception ex)
                 {
-                    Utils.LogError("Patching Failed. Exception thrown:" + ex.ToString());
+                    Utils.LogError($"Patching Failed. Exception thrown: {ex}");
                 }
                 registeredoverrides = true;
                 Destroy(this);

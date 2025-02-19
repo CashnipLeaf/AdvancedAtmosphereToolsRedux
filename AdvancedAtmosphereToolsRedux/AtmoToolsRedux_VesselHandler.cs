@@ -55,7 +55,6 @@ namespace AdvancedAtmosphereToolsRedux
             private set => adiabaticindex = Math.Max(value, 0.0);
         }
 
-        //TODO: implement the rest of this thing's functionality
         private double chokefactor = 0.0;
         internal double IntakeChokeFactor
         {
