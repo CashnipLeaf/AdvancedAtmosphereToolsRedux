@@ -10,6 +10,8 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.MolarMassCurve
 
         public MolarMassCurve() { }
 
+        public void Initialize() { }
+
         public double GetBaseMolarMass(double lon, double lat, double alt, double time, double trueanomaly, double eccentricity) => (double)BaseMolarMassCurve.Evaluate((float)alt);
     }
 }

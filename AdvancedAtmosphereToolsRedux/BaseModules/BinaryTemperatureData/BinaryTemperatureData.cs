@@ -52,11 +52,10 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.BinaryTemperatureData
             set => disableeccentricitybias = value;
         }
 
-        public BinaryTemperatureData() { }
+        public BinaryTemperatureData(CelestialBody body) => this.body = body.name;
 
-        public void Initialize(CelestialBody body)
+        public void Initialize()
         {
-            this.body = body.name;
             if (string.IsNullOrEmpty(Path))
             {
                 throw new ArgumentNullException();

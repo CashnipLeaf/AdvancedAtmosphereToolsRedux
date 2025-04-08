@@ -11,12 +11,12 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.BinaryWindData
     {
         public BinaryWindData Value {  get; set; }
 
-        public BinaryWindDataLoader() => Value = new BinaryWindData();
+        public BinaryWindDataLoader() => Value = new BinaryWindData(generatedBody.celestialBody);
 
         //initialize the stuff
         void IParserPostApplyEventSubscriber.PostApply(ConfigNode node)
         {
-            Value.Initialize(generatedBody.celestialBody);
+            Value.Initialize();
 
             AtmoToolsRedux_Data.AddWindProvider(Value, generatedBody.celestialBody);
         }
@@ -118,6 +118,20 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.BinaryWindData
         {
             get => Value.TimeOffset;
             set => Value.TimeOffset = value;
+        }
+
+        [ParserTarget("eastWestWindMultiplier", Optional = true)]
+        public NumericParser<Double> EastWestWindMultiplier
+        {
+            get => Value.EastWestWindMultiplier;
+            set => Value.EastWestWindMultiplier = value;
+        }
+
+        [ParserTarget("northSouthWindMultiplier", Optional = true)]
+        public NumericParser<Double> NorthSouthWindMultiplier
+        {
+            get => Value.NorthSouthWindMultiplier;
+            set => Value.NorthSouthWindMultiplier = value;
         }
 
         [ParserTarget("verticalWindMultiplier", Optional = true)]

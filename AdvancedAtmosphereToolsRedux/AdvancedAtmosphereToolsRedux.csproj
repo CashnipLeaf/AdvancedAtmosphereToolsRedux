@@ -145,7 +145,6 @@
     <Compile Include="Utils.cs" />
     <Compile Include="AtmoToolsRedux_VesselHandler.cs" />
     <Compile Include="HarmonyPatches\WaterPhysics.cs" />
-    <Compile Include="WindAdjustedMarkers.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

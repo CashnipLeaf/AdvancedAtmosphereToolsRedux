@@ -10,12 +10,12 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.FlowMap
         
         public bool useThirdChannel = false; //whether or not to use the Blue channel to add a vertical component to the winds.
         public FloatCurve AltitudeSpeedMultCurve;
-        public FloatCurve X_AltitudeSpeedMultCurve = new FloatCurve(new Keyframe[1] { new Keyframe(0f, 1f, 0f, 0f) });
-        public FloatCurve Y_AltitudeSpeedMultCurve = new FloatCurve(new Keyframe[1] { new Keyframe(0f, 1f, 0f, 0f) });
-        public FloatCurve Z_AltitudeSpeedMultCurve = new FloatCurve(new Keyframe[1] { new Keyframe(0f, 1f, 0f, 0f) });
-        public FloatCurve WindSpeedMultiplierTimeCurve = new FloatCurve(new Keyframe[1] { new Keyframe(0f, 1f, 0f, 0f) });
-        public FloatCurve TrueAnomalyMultiplierCurve = new FloatCurve(new Keyframe[1] { new Keyframe(0f, 1f, 0f, 0f) });
-        public FloatCurve EccentricityMultiplierCurve = new FloatCurve(new Keyframe[1] { new Keyframe(0f, 1f, 0f, 0f) });
+        public FloatCurve X_AltitudeSpeedMultCurve = AtmoToolsReduxUtils.FlatCurve(1f);
+        public FloatCurve Y_AltitudeSpeedMultCurve = AtmoToolsReduxUtils.FlatCurve(1f);
+        public FloatCurve Z_AltitudeSpeedMultCurve = AtmoToolsReduxUtils.FlatCurve(1f);
+        public FloatCurve WindSpeedMultiplierTimeCurve = AtmoToolsReduxUtils.FlatCurve(1f);
+        public FloatCurve TrueAnomalyMultiplierCurve = AtmoToolsReduxUtils.FlatCurve(1f);
+        public FloatCurve EccentricityMultiplierCurve = AtmoToolsReduxUtils.FlatCurve(1f);
 
         public float x_WindSpeed = 0f; //North/South or Radial
         public float y_WindSpeed = 0f; //Vertical
@@ -55,7 +55,7 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.FlowMap
                 }
                 else
                 {
-                    AltitudeSpeedMultCurve = new FloatCurve(new Keyframe[1] { new Keyframe(0f, 1f, 0f, 0f) });
+                    AltitudeSpeedMultCurve = AtmoToolsReduxUtils.FlatCurve(1f);
                 }
             }
         }

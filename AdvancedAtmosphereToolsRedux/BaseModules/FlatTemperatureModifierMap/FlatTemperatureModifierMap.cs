@@ -64,6 +64,8 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.FlatTemperatureModifierMap
 
         public FlatTemperatureModifierMap() => map = new GenericMap();
 
+        public void Initialize() { }
+
         public double GetFlatTemperatureModifier(double lon, double lat, double alt, double time, double trueAnomaly, double eccentricity) => map.GetValue(lon, lat, alt, time, trueAnomaly, eccentricity);
     }
 }

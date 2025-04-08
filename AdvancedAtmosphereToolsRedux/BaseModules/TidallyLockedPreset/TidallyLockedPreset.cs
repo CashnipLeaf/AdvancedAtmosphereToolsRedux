@@ -130,6 +130,8 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.TidallyLockedPreset
             }
         }
 
+        public void Initialize() { }
+
         public double GetFlatTemperatureModifier(double lon, double lat, double alt, double time, double trueAnomaly, double eccentricity)
         {
             if (presetType == PresetType.Fast)

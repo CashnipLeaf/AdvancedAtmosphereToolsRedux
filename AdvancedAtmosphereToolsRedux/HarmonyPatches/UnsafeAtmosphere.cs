@@ -8,12 +8,9 @@ namespace AdvancedAtmosphereToolsRedux.HarmonyPatches
     [HarmonyPatch]
     public static class UnsafeAtmoHijacker
     {
-        public static MethodBase TargetMethod()
-        {
-            return AccessTools.Method(typeof(KerbalEVA), "CheckHelmetOffSafe");
-        }
+        public static MethodBase TargetMethod() => AccessTools.Method(typeof(KerbalEVA), "CheckHelmetOffSafe");
 
-        public static bool Prefix(ref bool __result, KerbalEVA __instance, ref string ___helmetUnsafeReason)
+        public static bool Prefix(ref bool __result, KerbalEVA __instance, ref string ___helmetUnsafeReason, ref bool includeSafetyMargins)
         {
             Vessel vessel = __instance.vessel;
             CelestialBody body = vessel.mainBody;
@@ -26,59 +23,17 @@ namespace AdvancedAtmosphereToolsRedux.HarmonyPatches
             {
                 double time = Planetarium.GetUniversalTime();
                 AtmoToolsReduxUtils.GetTrueAnomalyEccentricity(body, out double trueAnomaly, out double eccentricity);
-                bool atmoUnsafe = atmodata.CheckAtmosphereUnsafe(vessel.longitude, vessel.latitude, vessel.altitude, time, trueAnomaly, eccentricity, out string unsafeAtmoMessage);
-                if (atmoUnsafe)
+                atmodata.CheckAtmosphereUnsafe(vessel.longitude, vessel.latitude, vessel.altitude, time, trueAnomaly, eccentricity, out bool unsafeToBreathe, out bool willDie, out string unsafeAtmoMessage);
+
+                __result = includeSafetyMargins ? !(unsafeToBreathe || willDie) : !willDie;
+
+                if (!__result)
                 {
                     ___helmetUnsafeReason = !string.IsNullOrEmpty(unsafeAtmoMessage) ? Localizer.Format(unsafeAtmoMessage) : Localizer.Format("#autoLOC_8003204"); //"No breathable atmosphere"
-                    __result = false;
-                    return false;
                 }
-            }
-            return true;
-        }
-    }
-
-    /*
-    [HarmonyPatch(typeof(KerbalEVA), nameof(KerbalEVA.CanEVAWithoutHelmet))]
-    public static class KerbalBreathHijacker1
-    {
-        public static bool Prefix(ref bool __result, KerbalEVA __instance, ref string ___helmetUnsafeReason)
-        {
-            if (UnsafeAtmoHijacker.IsAtmoUnsafe(__instance.vessel, ref ___helmetUnsafeReason))
-            {
-                __result = false;
                 return false;
             }
             return true;
         }
     }
-
-    [HarmonyPatch(typeof(KerbalEVA), nameof(KerbalEVA.CanSafelyRemoveHelmet))]
-    public static class KerbalBreathHijacker2
-    {
-        public static bool Prefix(ref bool __result, KerbalEVA __instance, ref string ___helmetUnsafeReason)
-        {
-            if (UnsafeAtmoHijacker.IsAtmoUnsafe(__instance.vessel, ref ___helmetUnsafeReason))
-            {
-                __result = false;
-                return false;
-            }
-            return true;
-        }
-    }
-
-    [HarmonyPatch(typeof(KerbalEVA), nameof(KerbalEVA.WillDieWithoutHelmet))]
-    public static class KerbalBreathHijacker3
-    {
-        public static bool Prefix(ref bool __result, KerbalEVA __instance, ref string ___helmetUnsafeReason)
-        {
-            if (UnsafeAtmoHijacker.IsAtmoUnsafe(__instance.vessel, ref ___helmetUnsafeReason))
-            {
-                __result = true; //this differs from the other two because this should return "true" if kerbal will die, while the other two return "true" if the kerbal will live
-                return false;
-            }
-            return true;
-        }
-    }
-    */
 }

@@ -13,10 +13,7 @@ namespace AdvancedAtmosphereToolsRedux
         internal static void LogError(string message) => Debug.Log($"[AdvAtmoToolsRedux][ERROR]: {message}");
 
         
-        internal static float BiLerp(float first1, float second1, float first2, float second2, float by1, float by2)
-        {
-            return Mathf.Lerp(Mathf.Lerp(first1, second1, by1), Mathf.Lerp(first2, second2, by1), by2);
-        }
+        internal static float BiLerp(float first1, float second1, float first2, float second2, float by1, float by2) => Mathf.Lerp(Mathf.Lerp(first1, second1, by1), Mathf.Lerp(first2, second2, by1), by2);
 
         //allow for altitude spacing based on some factor
         internal static double ScaleAltitude(double nX, double xBase, int upperbound, out int int1, out int int2)
@@ -60,7 +57,7 @@ namespace AdvancedAtmosphereToolsRedux
             }
             else
             {
-                return new FloatCurve(new Keyframe[1] { new Keyframe(0f, 0f, 0f, 0f) });
+                return AtmoToolsReduxUtils.ZeroCurve();
             }
         }
 
@@ -76,17 +73,7 @@ namespace AdvancedAtmosphereToolsRedux
             return curve;
         }
 
-        internal static float GetValAtLoopTime(FloatCurve curve, double time)
-        {
-            if (curve.maxTime <= 0f)
-            {
-                return curve.Evaluate(0f);
-            }
-            else
-            {
-                return curve.Evaluate(((float)time + curve.maxTime) % curve.maxTime);
-            }
-        }
+        internal static float GetValAtLoopTime(FloatCurve curve, double time) => curve.Evaluate(curve.maxTime <= 0f ? 0f : ((float)time + curve.maxTime) % curve.maxTime);
 
         internal static Texture2D CreateTexture(string path)
         {

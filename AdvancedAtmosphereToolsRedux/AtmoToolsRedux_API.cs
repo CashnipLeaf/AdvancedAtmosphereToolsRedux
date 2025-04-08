@@ -93,7 +93,7 @@ namespace AdvancedAtmosphereToolsRedux
             {
                 throw new ArgumentNullException(NullVessel);
             }
-            AtmoToolsRedux_VesselHandler VH = FlightSceneHandler.GetVesselHandler(vessel);
+            AtmoToolsRedux_VesselHandler VH = AtmoToolsRedux_VesselHandler.GetVesselHandler(vessel);
             if (VH != null)
             {
                 return AtmoToolsReduxUtils.GetVesselTransformMatrix(vessel) * VH.RawWind;
@@ -124,7 +124,7 @@ namespace AdvancedAtmosphereToolsRedux
             {
                 throw new ArgumentNullException(NullVessel);
             }
-            AtmoToolsRedux_VesselHandler VH = FlightSceneHandler.GetVesselHandler(vessel);
+            AtmoToolsRedux_VesselHandler VH = AtmoToolsRedux_VesselHandler.GetVesselHandler(vessel);
             return VH != null ? VH.Temperature : 0.0;
         }
 
@@ -134,7 +134,7 @@ namespace AdvancedAtmosphereToolsRedux
             {
                 throw new ArgumentNullException(NullVessel);
             }
-            AtmoToolsRedux_VesselHandler VH = FlightSceneHandler.GetVesselHandler(vessel);
+            AtmoToolsRedux_VesselHandler VH = AtmoToolsRedux_VesselHandler.GetVesselHandler(vessel);
             return VH != null ? VH.Pressure : 0.0;
         }
 
@@ -144,75 +144,30 @@ namespace AdvancedAtmosphereToolsRedux
             {
                 throw new ArgumentNullException(NullVessel);
             }
-            AtmoToolsRedux_VesselHandler VH = FlightSceneHandler.GetVesselHandler(vessel);
+            AtmoToolsRedux_VesselHandler VH = AtmoToolsRedux_VesselHandler.GetVesselHandler(vessel);
             return VH != null ? VH.MolarMass : 0.0;
         }
 
-        public static double GetVesselAdiabaticIndex(Vessel vessel)
+        public static double GetVesselAdiabaticIndex(Vessel vessel) 
         {
             if (vessel == null)
             {
                 throw new ArgumentNullException(NullVessel);
             }
-            AtmoToolsRedux_VesselHandler VH = FlightSceneHandler.GetVesselHandler(vessel);
+            AtmoToolsRedux_VesselHandler VH = AtmoToolsRedux_VesselHandler.GetVesselHandler(vessel);
             return VH != null ? VH.AdiabaticIndex : 0.0;
         }
 
-        public static Vector3 GetActiveVesselWindVector()
-        {
-            if (!HighLogic.LoadedSceneIsFlight)
-            {
-                throw new InvalidOperationException(NotFlight);
-            }
-            return GetVesselWindVector(FlightGlobals.ActiveVessel);
-        }
+        public static Vector3 GetActiveVesselWindVector() => !HighLogic.LoadedSceneIsFlight ? throw new InvalidOperationException() : GetVesselWindVector(FlightGlobals.ActiveVessel);
 
-        public static Vector3 GetActiveVesselOceanCurrentVector()
-        {
-            throw new NotImplementedException("Ocean Currents are not implemented.");
-            /*
-            if (!HighLogic.LoadedSceneIsFlight)
-            {
-                throw new InvalidOperationException(NotFlight);
-            }
-            return GetVesselOceanCurrentVector(FlightGlobals.ActiveVessel);
-            */
-        }
+        public static Vector3 GetActiveVesselOceanCurrentVector() => throw new NotImplementedException("Ocean Currents are not implemented."); //!HighLogic.LoadedSceneIsFlight ? throw new InvalidOperationException() : GetVesselOceanCurrentVector(FlightGlobals.ActiveVessel);
 
-        public static double GetActiveVesselTemperature()
-        {
-            if (!HighLogic.LoadedSceneIsFlight)
-            {
-                throw new InvalidOperationException();
-            }
-            return GetVesselTemperature(FlightGlobals.ActiveVessel);
-        }
+        public static double GetActiveVesselTemperature() => !HighLogic.LoadedSceneIsFlight ? throw new InvalidOperationException() : GetVesselTemperature(FlightGlobals.ActiveVessel);
 
-        public static double GetActiveVesselPressure()
-        {
-            if (!HighLogic.LoadedSceneIsFlight)
-            {
-                throw new InvalidOperationException(NotFlight);
-            }
-            return GetVesselPressure(FlightGlobals.ActiveVessel);
-        }
+        public static double GetActiveVesselPressure() => !HighLogic.LoadedSceneIsFlight ? throw new InvalidOperationException() : GetVesselPressure(FlightGlobals.ActiveVessel);
 
-        public static double GetActiveVesselMolarMass()
-        {
-            if (!HighLogic.LoadedSceneIsFlight)
-            {
-                throw new InvalidOperationException(NotFlight);
-            }
-            return GetVesselMolarMass(FlightGlobals.ActiveVessel);
-        }
+        public static double GetActiveVesselMolarMass() => !HighLogic.LoadedSceneIsFlight ? throw new InvalidOperationException() : GetVesselMolarMass(FlightGlobals.ActiveVessel);
 
-        public static double GetActiveVesselAdiabaticIndex()
-        {
-            if (!HighLogic.LoadedSceneIsFlight)
-            {
-                throw new InvalidOperationException(NotFlight);
-            }
-            return GetVesselAdiabaticIndex(FlightGlobals.ActiveVessel);
-        }
+        public static double GetActiveVesselAdiabaticIndex() => !HighLogic.LoadedSceneIsFlight ? throw new InvalidOperationException() : GetVesselAdiabaticIndex(FlightGlobals.ActiveVessel);
     }
 }

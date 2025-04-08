@@ -83,7 +83,7 @@ namespace AdvancedAtmosphereToolsRedux
         #region aerodynamics
         static void NewUpdateAerodynamics(ModularFlightIntegrator fi, Part part)
         {
-            AtmoToolsRedux_VesselHandler VH = FlightSceneHandler.GetVesselHandler(fi.Vessel);
+            AtmoToolsRedux_VesselHandler VH = AtmoToolsRedux_VesselHandler.GetVesselHandler(fi.Vessel);
 
             if (VH != null)
             {
@@ -109,7 +109,7 @@ namespace AdvancedAtmosphereToolsRedux
         //Takes advantage of CalculateAerodynamicArea()'s placement inside UpdateAerodynamics() to inject a new drag vector into the part before UpdateAerodynamics() uses to calculate anything.
         static double AerodynamicAreaOverride(ModularFlightIntegrator fi, Part part)
         {
-            AtmoToolsRedux_VesselHandler VH = FlightSceneHandler.GetVesselHandler(fi.Vessel);
+            AtmoToolsRedux_VesselHandler VH = AtmoToolsRedux_VesselHandler.GetVesselHandler(fi.Vessel);
             Vector3 windvec = VH != null ? VH.InternalAppliedWind : Vector3.zero;
             double submerged = part.submergedPortion;
             windvec.LerpWith(Vector3.zero, (float)(submerged * submerged));
@@ -166,7 +166,7 @@ namespace AdvancedAtmosphereToolsRedux
         #region thermodynamics
         static void CalculateConstantsAtmosphereOverride(ModularFlightIntegrator fi)
         {
-            AtmoToolsRedux_VesselHandler VH = FlightSceneHandler.GetVesselHandler(fi.Vessel);
+            AtmoToolsRedux_VesselHandler VH = AtmoToolsRedux_VesselHandler.GetVesselHandler(fi.Vessel);
             Vector3 windvec = VH != null ? VH.InternalAppliedWind : Vector3.zero;
             if (windvec.IsFinite() && !Mathf.Approximately(windvec.magnitude, 0.0f))
             {
@@ -232,7 +232,7 @@ namespace AdvancedAtmosphereToolsRedux
 
         static void CalcPressureOverride(ModularFlightIntegrator fi)
         {
-            AtmoToolsRedux_VesselHandler VH = FlightSceneHandler.GetVesselHandler(fi.Vessel);
+            AtmoToolsRedux_VesselHandler VH = AtmoToolsRedux_VesselHandler.GetVesselHandler(fi.Vessel);
             if (VH == null)
             {
                 fi.BaseFICalculatePressure();

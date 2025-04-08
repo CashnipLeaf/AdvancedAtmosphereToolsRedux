@@ -23,11 +23,10 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.BinaryPressureData
 
         public float[][,,] PressData;
 
-        public BinaryPressureData() { }
+        public BinaryPressureData(CelestialBody body) => this.body = body.name;
 
-        public void Initialize(CelestialBody body)
-        {
-            this.body = body.name;
+        public void Initialize()
+        {   
             if (string.IsNullOrEmpty(Path))
             {
                 throw new ArgumentNullException();

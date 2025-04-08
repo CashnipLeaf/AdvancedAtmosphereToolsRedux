@@ -79,6 +79,9 @@ namespace AdvancedAtmosphereToolsRedux
             }
         }
 
+        public static FloatCurve FlatCurve(float value) => new FloatCurve(new Keyframe[1] { new Keyframe(0f, value, 0f, 0f) });
+        public static FloatCurve ZeroCurve() => FlatCurve(0f);
+
         //CelestialBody.GetDensity() but manipulated for my own purposes
         public static double GetDensity(double pressure, double temperature, double molarmass) => pressure > 0.0 && temperature > 0.0 ? (pressure * 1000 * molarmass) / (temperature * PhysicsGlobals.IdealGasConstant) : 0.0;
 
@@ -101,11 +104,7 @@ namespace AdvancedAtmosphereToolsRedux
             Vector3d targetBodyPos = targetBody.scaledBody.transform.position;
             Vector3d sunVector = targetBodyPos - posOnBody;
             double magnitude = sunVector.magnitude;
-            if (magnitude == 0.0)
-            {
-                magnitude = 1.0;
-            }
-            sunvec = sunVector / magnitude;
+            sunvec = sunVector / (magnitude == 0.0 ? 1.0 : magnitude);
         }
 
         public static FlightIntegrator GetFIFromVessel(Vessel vessel)

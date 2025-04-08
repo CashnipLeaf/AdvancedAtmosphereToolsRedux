@@ -63,6 +63,8 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.LatitudeSunMultModifierMap
 
         public LatitudeSunMultModifierMap() => map = new GenericMap();
 
+        public void Initialize() { }
+
         public double GetFractionalLatitudeSunMultModifier(double lon, double lat, double alt, double time, double trueAnomaly, double eccentricity) => map.GetValue(lon, lat, alt, time, trueAnomaly, eccentricity);
     }
 }

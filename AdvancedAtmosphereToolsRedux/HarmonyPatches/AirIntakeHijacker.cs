@@ -12,7 +12,7 @@ namespace AdvancedAtmosphereToolsRedux.HarmonyPatches
         static bool Prefix(ModuleResourceIntake __instance) //This is an abomination. Please msg me if you have a cleaner implementation.
         {
             //fall back to stock behavior as a failsafe
-            AtmoToolsRedux_VesselHandler VH = FlightSceneHandler.GetVesselHandler(__instance.part.vessel);
+            AtmoToolsRedux_VesselHandler VH = AtmoToolsRedux_VesselHandler.GetVesselHandler(__instance.part.vessel);
             if (__instance == null || VH == null)
             {
                 return true;

@@ -11,12 +11,12 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.BinaryTemperatureData
     {
         public BinaryTemperatureData Value { get; set; }
 
-        public BinaryTemperatureDataLoader() => Value = new BinaryTemperatureData();
+        public BinaryTemperatureDataLoader() => Value = new BinaryTemperatureData(generatedBody.celestialBody);
 
         //initialize the stuff
         void IParserPostApplyEventSubscriber.PostApply(ConfigNode node)
         {
-            Value.Initialize(generatedBody.celestialBody);
+            Value.Initialize();
 
             AtmoToolsRedux_Data.SetBaseTemperature(Value, generatedBody.celestialBody);
         }

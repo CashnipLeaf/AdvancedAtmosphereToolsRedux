@@ -6,9 +6,6 @@ namespace AdvancedAtmosphereToolsRedux
     [KSPAddon(KSPAddon.Startup.MainMenu, true)]
     internal class ToolbarRegister : MonoBehaviour
     {
-        void Start()
-        {
-            ToolbarControl.RegisterMod(GUIHandler.modID, GUIHandler.modNAME);
-        }
+        void Start() => ToolbarControl.RegisterMod(GUIHandler.modID, GUIHandler.modNAME);
     }
 }

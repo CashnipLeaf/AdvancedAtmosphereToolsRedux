@@ -9,7 +9,7 @@ namespace AdvancedAtmosphereToolsRedux.HarmonyPatches
     {
         static void Prefix(ref Vector3 pointVelocity, ModuleLiftingSurface __instance)
         {
-            AtmoToolsRedux_VesselHandler VH = FlightSceneHandler.GetVesselHandler(__instance.part.vessel);
+            AtmoToolsRedux_VesselHandler VH = AtmoToolsRedux_VesselHandler.GetVesselHandler(__instance.part.vessel);
             if (!pointVelocity.IsFinite() || VH == null || Settings.FAR_Exists)
             {
                 return;

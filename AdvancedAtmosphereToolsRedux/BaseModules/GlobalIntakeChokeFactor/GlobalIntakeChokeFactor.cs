@@ -18,6 +18,8 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.GlobalIntakeChokeFactor
 
         public GlobalIntakeChokeFactor() { }
 
+        public void Initialize() { }
+
         public double GetAirIntakeChokeFactor(double longitude, double latitude, double altitude, double time, double trueAnomaly, double eccentricity) => chokefactor;
     }
 }

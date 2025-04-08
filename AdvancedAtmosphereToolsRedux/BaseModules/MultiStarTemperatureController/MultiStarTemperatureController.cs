@@ -18,6 +18,8 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.MultiStarTemperatureControlle
 
         public MultiStarTemperatureController(CelestialBody body) => this.body = body.name;
 
+        public void Initialize() { }
+
         public void AddStar(ConfigNode cn)
         {
             if (Stars == null)

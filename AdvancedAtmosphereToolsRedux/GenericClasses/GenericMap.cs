@@ -27,9 +27,9 @@ namespace AdvancedAtmosphereToolsRedux.GenericClasses
              new Keyframe(0.4f, 0f, -2.5f, 0f),
              new Keyframe(1f, 0f, 0f, 0f)
         });
-        public FloatCurve TimeMultiplierCurve = new FloatCurve(new Keyframe[1] { new Keyframe(0f, 1f, 0f, 0f) });
-        public FloatCurve TrueAnomalyMultiplierCurve = new FloatCurve(new Keyframe[1] { new Keyframe(0f, 1f, 0f, 0f) });
-        public FloatCurve EccentricityMultiplierCurve = new FloatCurve(new Keyframe[1] { new Keyframe(0f, 1f, 0f, 0f) });
+        public FloatCurve TimeMultiplierCurve = AtmoToolsReduxUtils.FlatCurve(1f);
+        public FloatCurve TrueAnomalyMultiplierCurve = AtmoToolsReduxUtils.FlatCurve(1f);
+        public FloatCurve EccentricityMultiplierCurve = AtmoToolsReduxUtils.FlatCurve(1f);
 
         private bool canscroll = false;
         public bool CanScroll

@@ -11,12 +11,12 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.BinaryPressureData
     {
         public BinaryPressureData Value { get; set; }
 
-        public BinaryPressureDataLoader() => Value = new BinaryPressureData();
+        public BinaryPressureDataLoader() => Value = new BinaryPressureData(generatedBody.celestialBody);
 
         //initialize the stuff
         void IParserPostApplyEventSubscriber.PostApply(ConfigNode node)
         {
-            Value.Initialize(generatedBody.celestialBody);
+            Value.Initialize();
 
             AtmoToolsRedux_Data.SetBasePressure(Value, generatedBody.celestialBody);
         }

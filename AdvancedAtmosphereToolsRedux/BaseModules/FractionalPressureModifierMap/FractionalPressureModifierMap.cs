@@ -64,6 +64,8 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.FractionalPressureModifierMap
 
         public FractionalPressureModifierMap() => map = new GenericMap();
 
+        public void Initialize() { }
+
         public double GetFractionalPressureModifier(double lon, double lat, double alt, double time, double trueAnomaly, double eccentricity) => map.GetValue(lon, lat, alt, time, trueAnomaly, eccentricity);
     }
 }

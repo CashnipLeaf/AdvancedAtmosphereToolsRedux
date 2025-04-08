@@ -12,6 +12,8 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.GenericTradeWinds
     {
         public GenericTradeWinds() { }
 
+        public void Initialize() { }
+
         public Vector3 GetWindVector(double lon, double lat, double alt, double time, double trueanomaly, double eccentricity)
         {
             return Vector3.zero;

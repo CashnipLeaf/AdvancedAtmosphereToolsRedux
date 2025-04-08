@@ -32,30 +32,30 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.TwinStarTemperatureController
 
         public string secondStarName = string.Empty;
 
-        public FloatCurve temperatureCurve = new FloatCurve(new Keyframe[1] { new Keyframe(0f, 0f, 0f, 0f) });
-        public FloatCurve temperatureSunMultCurve = new FloatCurve(new Keyframe[1] { new Keyframe(0f, 0f, 0f, 0f) });
-        public FloatCurve temperatureLatitudeBiasCurve = new FloatCurve(new Keyframe[1] { new Keyframe(0f, 0f, 0f, 0f) });
-        public FloatCurve temperatureLatitudeSunMultCurve = new FloatCurve(new Keyframe[1] { new Keyframe(0f, 0f, 0f, 0f) });
-        public FloatCurve temperatureAxialSunBiasCurve = new FloatCurve(new Keyframe[1] { new Keyframe(0f, 0f, 0f, 0f) });
-        public FloatCurve temperatureAxialSunMultCurve = new FloatCurve(new Keyframe[1] { new Keyframe(0f, 0f, 0f, 0f) });
-        public FloatCurve temperatureEccentricityBiasCurve = new FloatCurve(new Keyframe[1] {new Keyframe(0f, 0f, 0f ,0f) });
+        public FloatCurve temperatureCurve = AtmoToolsReduxUtils.ZeroCurve();
+        public FloatCurve temperatureSunMultCurve = AtmoToolsReduxUtils.ZeroCurve();
+        public FloatCurve temperatureLatitudeBiasCurve = AtmoToolsReduxUtils.ZeroCurve();
+        public FloatCurve temperatureLatitudeSunMultCurve = AtmoToolsReduxUtils.ZeroCurve();
+        public FloatCurve temperatureAxialSunBiasCurve = AtmoToolsReduxUtils.ZeroCurve();
+        public FloatCurve temperatureAxialSunMultCurve = AtmoToolsReduxUtils.ZeroCurve();
+        public FloatCurve temperatureEccentricityBiasCurve = AtmoToolsReduxUtils.ZeroCurve();
 
         public float maxTempAngleOffset = 45f;
 
         public double minDistance = double.MaxValue;
         public double maxDistance = 0.0;
 
-        public TwinStarTemperatureController() { }
-
-        public void Initialize(CelestialBody body)
+        public TwinStarTemperatureController(CelestialBody body)
         {
-            this.body = body.name;
-
             if (body.isStar)
             {
                 throw new ArgumentException("TwinStarTemperatureController cannot be applied to a star.");
             }
+            this.body = body.name;
+        }
 
+        public void Initialize()
+        {
             if (string.IsNullOrEmpty(secondStarName))
             {
                 throw new ArgumentException("secondaryStar field cannot be blank.");

@@ -1,10 +1,49 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace AdvancedAtmosphereToolsRedux
 {
     internal sealed class AtmoToolsRedux_VesselHandler : VesselModule
     {
+        #region vesselhandlercache
+        private static Dictionary<Vessel, AtmoToolsRedux_VesselHandler> VesselHandlerCache;
+
+        //cache the vessel handlers to speed things up
+        internal static AtmoToolsRedux_VesselHandler GetVesselHandler(Vessel v)
+        {
+            if (VesselHandlerCache == null)
+            {
+                VesselHandlerCache = new Dictionary<Vessel, AtmoToolsRedux_VesselHandler>();
+            }
+            if (v == null)
+            {
+                return null;
+            }
+            if (!VesselHandlerCache.ContainsKey(v) || VesselHandlerCache[v] == null)
+            {
+                foreach (VesselModule VM in v.vesselModules)
+                {
+                    if (VM is AtmoToolsRedux_VesselHandler VH)
+                    {
+                        VesselHandlerCache.Add(v, VH);
+                        break;
+                    }
+                }
+            }
+            return VesselHandlerCache.ContainsKey(v) ? VesselHandlerCache[v] : null;
+        }
+
+        internal static void ClearCache()
+        {
+            if (VesselHandlerCache == null)
+            {
+                VesselHandlerCache = new Dictionary<Vessel, AtmoToolsRedux_VesselHandler>();
+            }
+            VesselHandlerCache.Clear();
+        }
+        #endregion
+
         FlightIntegrator CacheFI;
         internal Matrix4x4 LocalToWorld = Matrix4x4.identity;
         
@@ -68,15 +107,9 @@ namespace AdvancedAtmosphereToolsRedux
 
         public override Activation GetActivation() => Activation.FlightScene;
 
-        protected override void OnAwake()
-        {
-            base.OnAwake();
-        }
+        protected override void OnAwake() => base.OnAwake();
 
-        protected override void OnStart()
-        {
-            base.OnStart();
-        }
+        protected override void OnStart() => base.OnStart();
 
         void FixedUpdate()
         {
@@ -231,7 +264,7 @@ namespace AdvancedAtmosphereToolsRedux
         void OnDestroy()
         {
             CacheFI = null;
-            FlightSceneHandler.ClearCache();
+            ClearCache();
         }
     }
 }

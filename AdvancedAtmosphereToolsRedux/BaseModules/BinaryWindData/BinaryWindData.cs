@@ -17,6 +17,8 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.BinaryWindData
         public double modeltop = 0.0;
         public double LonOffset = 0.0;
         public double TimeOffset = 0.0;
+        public double EastWestWindMultiplier = 1.0;
+        public double NorthSouthWindMultiplier = 1.0;
         public double VerticalWindMultiplier = 1.0;
 
         public string PathX;
@@ -35,11 +37,10 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.BinaryWindData
 
         private string body;
 
-        public BinaryWindData() { }
+        public BinaryWindData(CelestialBody body) => Body = body;
 
-        public void Initialize(CelestialBody body)
+        public void Initialize()
         {
-            Body = body;
             if (string.IsNullOrEmpty(PathX) || string.IsNullOrEmpty(PathY) || string.IsNullOrEmpty(PathZ))
             {
                 throw new ArgumentNullException();
@@ -93,9 +94,9 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.BinaryWindData
 
             Vector3 windvec = Vector3.zero;
             //Bilinearly interpolate on the altitude and time axes to create the wind vector
-            windvec.x = Mathf.Lerp(Mathf.Lerp(BottomPlaneX1, TopPlaneX1, (float)lerpz), Mathf.Lerp(BottomPlaneX2, TopPlaneX2, (float)lerpz), (float)lerpt);
+            windvec.x = Mathf.Lerp(Mathf.Lerp(BottomPlaneX1, TopPlaneX1, (float)lerpz), Mathf.Lerp(BottomPlaneX2, TopPlaneX2, (float)lerpz), (float)lerpt) * (float)NorthSouthWindMultiplier;
             windvec.y = Mathf.Lerp(Mathf.Lerp(BottomPlaneY1, TopPlaneY1, (float)lerpz), Mathf.Lerp(BottomPlaneY2, TopPlaneY2, (float)lerpz), (float)lerpt) * (float)VerticalWindMultiplier;
-            windvec.z = Mathf.Lerp(Mathf.Lerp(BottomPlaneZ1, TopPlaneZ1, (float)lerpz), Mathf.Lerp(BottomPlaneZ2, TopPlaneZ2, (float)lerpz), (float)lerpt);
+            windvec.z = Mathf.Lerp(Mathf.Lerp(BottomPlaneZ1, TopPlaneZ1, (float)lerpz), Mathf.Lerp(BottomPlaneZ2, TopPlaneZ2, (float)lerpz), (float)lerpt) * (float)EastWestWindMultiplier;
 
             return windvec.IsFinite() ? windvec : Vector3.zero;
         }

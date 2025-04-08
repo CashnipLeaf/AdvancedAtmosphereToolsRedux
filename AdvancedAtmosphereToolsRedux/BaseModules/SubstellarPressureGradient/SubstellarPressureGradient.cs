@@ -7,11 +7,13 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.SubstellarPressureGradient
     {
         private string body;
 
-        public FloatCurve GradientCurve = new FloatCurve(new Keyframe[1] { new Keyframe(0f, 0f, 0f, 0f) });
-        public FloatCurve AltitudeCurve = new FloatCurve(new Keyframe[1] { new Keyframe(0f, 1f, 0f, 0f) });
+        public FloatCurve GradientCurve = AtmoToolsReduxUtils.ZeroCurve();
+        public FloatCurve AltitudeCurve = AtmoToolsReduxUtils.FlatCurve(1f);
         public float angleOffset = 0f;
 
         public SubstellarPressureGradient(CelestialBody body) => this.body = body.name;
+
+        public void Initialize() { }
 
         public double GetFractionalPressureModifier(double lon, double lat, double alt, double time, double trueAnomaly, double eccentricity)
         {

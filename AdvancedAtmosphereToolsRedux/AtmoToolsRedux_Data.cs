@@ -42,10 +42,8 @@ namespace AdvancedAtmosphereToolsRedux
         private List<IWindProvider> windProviders = new List<IWindProvider>();
         public static void AddWindProvider(IWindProvider provider, string body)
         {
-            AtmoToolsRedux_Data data = GetOrCreateAtmosphereData(body);
-            data.windProviders.Add(provider);
-            string type = (provider.GetType()).ToString();
-            Utils.LogInfo($"Added type {type} as a Wind Provider for body {body}.");
+            GetOrCreateAtmosphereData(body).windProviders.Add(provider);
+            Utils.LogInfo($"Added type {provider.GetType()} as a Wind Provider for body {body}.");
         }
         public static void AddWindProvider(IWindProvider provider, CelestialBody body) => AddWindProvider(provider, body.name);
 
@@ -80,19 +78,17 @@ namespace AdvancedAtmosphereToolsRedux
         private List<IOceanCurrentProvider> oceanCurrentProviders = new List<IOceanCurrentProvider>();
         public static void AddOceanCurrentProvider(IOceanCurrentProvider provider, string body)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException("Ocean Currents are not implemented.");
             /*
-            AtmosphereData data = GetOrCreateAtmosphereData(body);
-            data.oceanCurrentProviders.Add(provider);
-            string type = (provider.GetType()).ToString();
-            Utils.LogInfo("Added type " + type + " as an Ocean Current Provider for body" + body + ".");
+            GetOrCreateAtmosphereData(body).oceanCurrentProviders.Add(provider);
+            Utils.LogInfo($"Added type {provider.GetType()} as an Ocean Provider for body {body}.");
             */
         }
         public static void AddOceanCurrentProvider(IOceanCurrentProvider provider, CelestialBody body) => AddOceanCurrentProvider(provider, body.name);
 
         public Vector3 GetOceanCurrentVector(double longitude, double latitude, double altitude, double time, double trueAnomaly, double eccentricity)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException("Ocean Currents are not implemented.");
             /*
             Vector3 oceanvec = Vector3.zero;
             foreach (IOceanCurrentProvider provider in oceanCurrentProviders)
@@ -127,8 +123,7 @@ namespace AdvancedAtmosphereToolsRedux
             else
             {
                 data.basePressure = bp;
-                string type = (bp.GetType()).ToString();
-                Utils.LogInfo($"Added type {type} as a Base Pressure for body {body}.");
+                Utils.LogInfo($"Added type {bp.GetType()} as a Base Pressure for body {body}.");
             }
         }
         public static void SetBasePressure(IBasePressure bp, CelestialBody body) => SetBasePressure(bp, body.name);
@@ -136,20 +131,16 @@ namespace AdvancedAtmosphereToolsRedux
         private List<IFractionalPressureModifier> fractionalPressureModifiers = new List<IFractionalPressureModifier>();
         public static void AddFractionalPressureModifier(IFractionalPressureModifier modifier, string body)
         {
-            AtmoToolsRedux_Data data = GetOrCreateAtmosphereData(body);
-            data.fractionalPressureModifiers.Add(modifier);
-            string type = (modifier.GetType()).ToString();
-            Utils.LogInfo($"Added type {type} as a Fractional Pressure Modifier for body {body}.");
+            GetOrCreateAtmosphereData(body).fractionalPressureModifiers.Add(modifier);
+            Utils.LogInfo($"Added type {modifier.GetType()} as a Fractional Pressure Modifier for body {body}.");
         }
         public static void AddFractionalPressureModifier(IFractionalPressureModifier modifier, CelestialBody body) => AddFractionalPressureModifier(modifier, body.name);
 
         private List<IFlatPressureModifier> flatPressureModifiers = new List<IFlatPressureModifier>();
         public static void AddFlatPressureModifier(IFlatPressureModifier modifier, string body)
         {
-            AtmoToolsRedux_Data data = GetOrCreateAtmosphereData(body);
-            data.flatPressureModifiers.Add(modifier);
-            string type = (modifier.GetType()).ToString();
-            Utils.LogInfo($"Added type {type} as a Flat Pressure Modifier for body {body}.");
+            GetOrCreateAtmosphereData(body).flatPressureModifiers.Add(modifier);
+            Utils.LogInfo($"Added type {modifier.GetType()} as a Flat Pressure Modifier for body {body}.");
         }
         public static void AddFlatPressureModifier(IFlatPressureModifier modifier, CelestialBody body) => AddFlatPressureModifier(modifier, body.name);
 
@@ -210,8 +201,7 @@ namespace AdvancedAtmosphereToolsRedux
             else
             {
                 data.baseTemperature = bt;
-                string type = (bt.GetType()).ToString();
-                Utils.LogInfo($"Added type {type} as a Base Temperature for body {body}.");
+                Utils.LogInfo($"Added type {bt.GetType()} as a Base Temperature for body {body}.");
             }
         }
         public static void SetBaseTemperature(IBaseTemperature bt, CelestialBody body) => SetBaseTemperature(bt, body.name);
@@ -219,60 +209,48 @@ namespace AdvancedAtmosphereToolsRedux
         private List<IFractionalTemperatureModifier> fractionalTemperatureModifiers = new List<IFractionalTemperatureModifier>();
         public static void AddFractionalTemperatureModifier(IFractionalTemperatureModifier modifier, string body)
         {
-            AtmoToolsRedux_Data data = GetOrCreateAtmosphereData(body);
-            data.fractionalTemperatureModifiers.Add(modifier);
-            string type = (modifier.GetType()).ToString();
-            Utils.LogInfo($"Added type {type} as a Fractional Temperature Modifier for body {body}.");
+            GetOrCreateAtmosphereData(body).fractionalTemperatureModifiers.Add(modifier);
+            Utils.LogInfo($"Added type {modifier.GetType()} as a Fractional Temperature Modifier for body {body}.");
         }
         public static void AddFractionalTemperatureModifier(IFractionalTemperatureModifier modifier, CelestialBody body) => AddFractionalTemperatureModifier(modifier, body.name);
 
         private List<IFlatTemperatureModifier> flatTemperatureModifiers = new List<IFlatTemperatureModifier>();
         public static void AddFlatTemperatureModifier(IFlatTemperatureModifier modifier, string body)
         {
-            AtmoToolsRedux_Data data = GetOrCreateAtmosphereData(body);
-            data.flatTemperatureModifiers.Add(modifier);
-            string type = (modifier.GetType()).ToString();
-            Utils.LogInfo($"Added type {type} as a Flat Temperature Modifier for body {body}.");
+            GetOrCreateAtmosphereData(body).flatTemperatureModifiers.Add(modifier);
+            Utils.LogInfo($"Added type {modifier.GetType()} as a Flat Temperature Modifier for body {body}.");
         }
         public static void AddFlatTemperatureModifier(IFlatTemperatureModifier modifier, CelestialBody body) => AddFlatTemperatureModifier(modifier, body.name);
 
         private List<IFractionalLatitudeBiasModifier> fractionalLatitudeBiasModifiers = new List<IFractionalLatitudeBiasModifier>();
         public static void AddFractionalLatitudeBiasModifier(IFractionalLatitudeBiasModifier modifier, string body)
         {
-            AtmoToolsRedux_Data data = GetOrCreateAtmosphereData(body);
-            data.fractionalLatitudeBiasModifiers.Add(modifier);
-            string type = (modifier.GetType()).ToString();
-            Utils.LogInfo($"Added type {type} as a Fractional LatitudeBias Modifier for body {body}.");
+            GetOrCreateAtmosphereData(body).fractionalLatitudeBiasModifiers.Add(modifier);
+            Utils.LogInfo($"Added type {modifier.GetType()} as a Fractional LatitudeBias Modifier for body {body}.");
         }
         public static void AddFractionalLatitudeBiasModifier(IFractionalLatitudeBiasModifier modifier, CelestialBody body) => AddFractionalLatitudeBiasModifier(modifier, body.name);
 
         private List<IFractionalLatitudeSunMultModifier> fractionalLatitudeSunMultModifiers = new List<IFractionalLatitudeSunMultModifier>();
         public static void AddFractionalLatitudeSunMultModifier(IFractionalLatitudeSunMultModifier modifier, string body)
         {
-            AtmoToolsRedux_Data data = GetOrCreateAtmosphereData(body);
-            data.fractionalLatitudeSunMultModifiers.Add(modifier);
-            string type = (modifier.GetType()).ToString();
-            Utils.LogInfo($"Added type {type} as a Fractional LatitudeSunMult Modifier for body {body}.");
+            GetOrCreateAtmosphereData(body).fractionalLatitudeSunMultModifiers.Add(modifier);
+            Utils.LogInfo($"Added type {modifier.GetType()} as a Fractional LatitudeSunMult Modifier for body {body}.");
         }
         public static void AddFractionalLatitudeSunMultModifier(IFractionalLatitudeSunMultModifier modifier, CelestialBody body) => AddFractionalLatitudeSunMultModifier(modifier, body.name);
 
         private List<IFractionalAxialSunBiasModifier> fractionalAxialSunBiasModifiers = new List<IFractionalAxialSunBiasModifier>();
         public static void AddFractionalAxialSunBiasModifier(IFractionalAxialSunBiasModifier modifier, string body)
         {
-            AtmoToolsRedux_Data data = GetOrCreateAtmosphereData(body);
-            data.fractionalAxialSunBiasModifiers.Add(modifier);
-            string type = (modifier.GetType()).ToString();
-            Utils.LogInfo($"Added type {type} as a Fractional AxialSunBias Modifier for body {body}.");
+            GetOrCreateAtmosphereData(body).fractionalAxialSunBiasModifiers.Add(modifier);
+            Utils.LogInfo($"Added type {modifier.GetType()} as a Fractional AxialSunBias Modifier for body {body}.");
         }
         public static void AddFractionalAxialSunBiasModifier(IFractionalAxialSunBiasModifier modifier, CelestialBody body) => AddFractionalAxialSunBiasModifier(modifier, body.name);
 
         private List<IFractionalEccentricityBiasModifier> fractionalEccentricityBiasModifiers = new List<IFractionalEccentricityBiasModifier>();
         public static void AddFractionalEccentricityBiasModifier(IFractionalEccentricityBiasModifier modifier, string body)
         {
-            AtmoToolsRedux_Data data = GetOrCreateAtmosphereData(body);
-            data.fractionalEccentricityBiasModifiers.Add(modifier);
-            string type = (modifier.GetType()).ToString();
-            Utils.LogInfo($"Added type {type} as a Fractional EccentricityBias Modifier for body {body}.");
+            GetOrCreateAtmosphereData(body).fractionalEccentricityBiasModifiers.Add(modifier);
+            Utils.LogInfo($"Added type {modifier.GetType()} as a Fractional EccentricityBias Modifier for body {body}.");
         }
         public static void AddFractionalEccentricityBiasModifier(IFractionalEccentricityBiasModifier modifier, CelestialBody body) => AddFractionalEccentricityBiasModifier(modifier, body.name);
 
@@ -420,8 +398,7 @@ namespace AdvancedAtmosphereToolsRedux
             else
             {
                 data.baseMolarMass = bmm;
-                string type = (bmm.GetType()).ToString();
-                Utils.LogInfo($"Added type {type} as a Base Molar Mass for body {body}.");
+                Utils.LogInfo($"Added type {bmm.GetType()} as a Base Molar Mass for body {body}.");
             }
         }
         public static void SetBaseMolarMass(IBaseMolarMass bmm, CelestialBody body) => SetBaseMolarMass(bmm, body.name);
@@ -429,10 +406,8 @@ namespace AdvancedAtmosphereToolsRedux
         private List<IFlatMolarMassModifier> flatMolarMassModifiers = new List<IFlatMolarMassModifier>();
         public static void AddFlatMolarMassModifier(IFlatMolarMassModifier modifier, string body)
         {
-            AtmoToolsRedux_Data data = GetOrCreateAtmosphereData(body);
-            data.flatMolarMassModifiers.Add(modifier);
-            string type = (modifier.GetType()).ToString();
-            Utils.LogInfo($"Added type {type} as a Flat Molar Mass Modifier for body {body}.");
+            GetOrCreateAtmosphereData(body).flatMolarMassModifiers.Add(modifier);
+            Utils.LogInfo($"Added type {modifier.GetType()} as a Flat Molar Mass Modifier for body {body}.");
         }
         public static void AddFlatMolarMassModifier(IFlatMolarMassModifier modifier, CelestialBody body) => AddFlatMolarMassModifier(modifier, body.name);
 
@@ -473,8 +448,7 @@ namespace AdvancedAtmosphereToolsRedux
             else
             {
                 data.baseAdiabaticIndex = bai;
-                string type = (bai.GetType()).ToString();
-                Utils.LogInfo($"Added type {type} as a Base Adiabatic Index for body {body}.");
+                Utils.LogInfo($"Added type {bai.GetType()} as a Base Adiabatic Index for body {body}.");
             }
         }
         public static void SetBaseAdiabaticIndex(IBaseAdiabaticIndex bai, CelestialBody body) => SetBaseAdiabaticIndex(bai, body.name);
@@ -482,10 +456,8 @@ namespace AdvancedAtmosphereToolsRedux
         private List<IFlatAdiabaticIndexModifier> flatAdiabaticIndexModifiers = new List<IFlatAdiabaticIndexModifier>();
         public static void AddFlatAdiabaticIndexModifier(IFlatAdiabaticIndexModifier modifier, string body)
         {
-            AtmoToolsRedux_Data data = GetOrCreateAtmosphereData(body);
-            data.flatAdiabaticIndexModifiers.Add(modifier);
-            string type = (modifier.GetType()).ToString();
-            Utils.LogInfo($"Added type {type} as a Flat Adiabatic Index Modifier for body {body}.");
+            GetOrCreateAtmosphereData(body).flatAdiabaticIndexModifiers.Add(modifier);
+            Utils.LogInfo($"Added type {modifier.GetType()} as a Flat Adiabatic Index Modifier for body {body}.");
         }
         public static void AddFlatAdiabaticIndexModifier(IFlatAdiabaticIndexModifier modifier, CelestialBody body) => AddFlatAdiabaticIndexModifier(modifier, body.name);
 
@@ -526,24 +498,30 @@ namespace AdvancedAtmosphereToolsRedux
             else 
             {
                 data.unsafeAtmosphereIndicator = uai;
-                string type = (uai.GetType()).ToString();
-                Utils.LogInfo($"Added type {type} as a Unsafe Atmosphere Indicator for body {body}.");
+                Utils.LogInfo($"Added type {uai.GetType()} as a Unsafe Atmosphere Indicator for body {body}.");
             }
         }
         public static void SetUnsafeAtmosphereIndicator(IUnsafeAtmosphereIndicator uai, CelestialBody body) => SetUnsafeAtmosphereIndicator(uai, body.name);
 
-        public bool CheckAtmosphereUnsafe(double longitude, double latitude, double altitude, double time, double trueAnomaly, double eccentricity, out string unsafeAtmoMessage)
+        public void CheckAtmosphereUnsafe(double longitude, double latitude, double altitude, double time, double trueAnomaly, double eccentricity, out bool unsafeToBreathe, out bool willDie, out string unsafeAtmoMessage)
         {
             try
             {
-                bool isatmoUnsafe = (unsafeAtmosphereIndicator != null) && unsafeAtmosphereIndicator.IsAtmosphereUnsafe(longitude, latitude, altitude, time, trueAnomaly, eccentricity);
-                unsafeAtmoMessage = (unsafeAtmosphereIndicator != null) ? unsafeAtmosphereIndicator.UnsafeAtmosphereMessage : string.Empty;
-                return isatmoUnsafe;
+                if(unsafeAtmosphereIndicator != null)
+                {
+                    unsafeAtmosphereIndicator.IsAtmosphereUnsafe(longitude, latitude, altitude, time, trueAnomaly, eccentricity, out unsafeToBreathe, out willDie);
+                    unsafeAtmoMessage = (unsafeToBreathe || willDie) ? unsafeAtmosphereIndicator.UnsafeAtmosphereMessage : string.Empty;
+                }
+                else
+                {
+                    unsafeAtmoMessage = string.Empty;
+                    unsafeToBreathe = willDie = false;
+                }
             }
             catch
             {
                 unsafeAtmoMessage = string.Empty;
-                return false;
+                unsafeToBreathe = willDie = false;
             }
         }
         #endregion
@@ -561,8 +539,7 @@ namespace AdvancedAtmosphereToolsRedux
             else
             {
                 data.intakechokefactor = aicf;
-                string type = (aicf.GetType()).ToString();
-                Utils.LogInfo($"Added type {type} as an Air Intake Choke Factor for body {body}.");
+                Utils.LogInfo($"Added type {aicf.GetType()} as an Air Intake Choke Factor for body {body}.");
             }
         }
         public static void SetAirIntakeChokeFactor(IAirIntakeChokeFactor aicf, CelestialBody body) => SetAirIntakeChokeFactor(aicf, body.name);
@@ -574,6 +551,7 @@ namespace AdvancedAtmosphereToolsRedux
         #endregion
 
         #region purging
+        //currently unused
         private void PurgeItem(object item)
         {
             if (item == null)

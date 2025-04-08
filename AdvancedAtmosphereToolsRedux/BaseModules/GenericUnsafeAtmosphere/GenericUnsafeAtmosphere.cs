@@ -15,6 +15,8 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.GenericUnsafeAtmosphere
         }
         private string unsafeatmomessage = string.Empty;
 
-        public bool IsAtmosphereUnsafe(double lon, double lat, double alt, double time, double trueanomaly, double eccentricity) => IsAtmoUnsafe;
+        public void Initialize() { }
+
+        public void IsAtmosphereUnsafe(double lon, double lat, double alt, double time, double trueanomaly, double eccentricity, out bool unsafeToBreathe, out bool willDie) => unsafeToBreathe = willDie = IsAtmoUnsafe;
     }
 }

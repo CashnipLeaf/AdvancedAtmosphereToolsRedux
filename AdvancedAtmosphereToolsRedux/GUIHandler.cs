@@ -3,12 +3,14 @@ using UnityEngine;
 using KSP.Localization;
 using KSP.UI.Screens;
 using ToolbarControl_NS;
+using KSP.UI.Screens.Flight;
 
 namespace AdvancedAtmosphereToolsRedux
 {
     [KSPAddon(KSPAddon.Startup.Flight, false)]
-    internal class GUIHandler : MonoBehaviour
+    internal class GUIHandler : MonoBehaviour //handles both the text GUI and the wind-adjusted markers
     {
+        #region TextGUIvariables
         private ToolbarControl toolbarController;
         private bool toolbarButtonAdded = false;
         private bool GUIEnabled = false;
@@ -36,27 +38,53 @@ namespace AdvancedAtmosphereToolsRedux
         private static string Secondsstr => Localizer.Format("″");
         private static readonly string[] directions = { "N", "S", "E", "W" };
         private static readonly string[] cardinaldirs = { "N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW" };
+        #endregion
+
+        #region navballmarkervariables
+        private NavBall navBall;
+        private GameObject progradewind;
+        private GameObject retrogradewind;
+        private Vector3 navBallLocalScale = new Vector3(44, 44, 44);
+
+        private Material progrademat;
+        private Material retrogrademat;
+        #endregion
 
         void Start()
         {
+            Settings.CheckGameSettings();
+
             //add to toolbar
             ApplicationLauncher.AppScenes scenes = ApplicationLauncher.AppScenes.FLIGHT | ApplicationLauncher.AppScenes.MAPVIEW;
             toolbarController = gameObject.AddComponent<ToolbarControl>();
             if (!toolbarButtonAdded)
             {
-                toolbarController.AddToAllToolbars(ToolbarButtonOnTrue, ToolbarButtonOnFalse, scenes, modID, "991295", LogoPath, LogoPath, modNAME);
+                toolbarController.AddToAllToolbars( () => { GUIEnabled = true; }, () => { GUIEnabled = false; }, scenes, modID, "991295", LogoPath, LogoPath, modNAME);
                 toolbarButtonAdded = true;
             }
             windowPos = new Rect(Xpos, Ypos, Xwidth, Yheight);
             Settings.buttondisablewindstationary = Settings.buttonindicatorsenabled = false;
+
+            GameEvents.onUIScaleChange.Add(ResizeIndicators);
         }
 
         void OnDestroy()
         {
             RemoveToolbarButton();
             GameEvents.onGUIApplicationLauncherDestroyed.Remove(RemoveToolbarButton);
+
+            if (progradewind != null)
+            {
+                Destroy(progradewind);
+            }
+            if (retrogradewind != null)
+            {
+                Destroy(retrogradewind);
+            }
+            GameEvents.onUIScaleChange.Remove(ResizeIndicators);
         }
 
+        #region textGUI
         void OnGUI()
         {
             GUI.skin.label.margin = new RectOffset(2, 2, 2, 2);
@@ -98,7 +126,7 @@ namespace AdvancedAtmosphereToolsRedux
             GUILayout.EndHorizontal();
 
             Vessel Activevessel = FlightGlobals.ActiveVessel;
-            AtmoToolsRedux_VesselHandler VH = FlightSceneHandler.GetVesselHandler(Activevessel);
+            AtmoToolsRedux_VesselHandler VH = AtmoToolsRedux_VesselHandler.GetVesselHandler(Activevessel);
 
             if (Activevessel != null && Activevessel.mainBody != null && VH != null)
             {
@@ -197,8 +225,8 @@ namespace AdvancedAtmosphereToolsRedux
                 DrawHeader(Localizer.Format("#LOC_AATR_grdtrk"));
                 DrawElement(Localizer.Format("#LOC_AATR_body"), Localizer.Format(bodyname));
                 //TODO: add biome info (?)
-                DrawElement(Localizer.Format("#LOC_AATR_lon"), DegreesString(Activevessel.longitude, 1)); //east/west
-                DrawElement(Localizer.Format("#LOC_AATR_lat"), DegreesString(Activevessel.latitude, 0)); //north/south
+                DrawElement(Localizer.Format("#LOC_AATR_lon"), DegreesString(Activevessel.longitude, LonLatAxis.Lat)); //east/west
+                DrawElement(Localizer.Format("#LOC_AATR_lat"), DegreesString(Activevessel.latitude, LonLatAxis.Lon)); //north/south
                 DrawElement(Localizer.Format("#LOC_AATR_alt"), altitude);
 
                 //Velocity Information
@@ -291,16 +319,13 @@ namespace AdvancedAtmosphereToolsRedux
             }
         }
 
-        private void ToolbarButtonOnTrue() => GUIEnabled = true;
-        private void ToolbarButtonOnFalse() => GUIEnabled = false;
-
         //display the longitude and latitude information as either degrees or degrees, minutes, and seconds + direction
-        private static string DegreesString(double deg, int axis)
+        private static string DegreesString(double deg, LonLatAxis axis)
         {
             double degrees = Math.Floor(Math.Abs(deg));
             double minutes = Math.Abs((deg % 1) * 60.0);
             double seconds = Math.Floor(Math.Abs(((deg % 1) * 3600.0) % 60.0));
-            string dir = directions[(2 * axis) + (deg < 0.0 ? 1 : 0)];
+            string dir = directions[(2 * (int)axis) + (deg < 0.0 ? 1 : 0)];
             switch (Settings.Minutesforcoords)
             {
                 case Settings.DegreesDisplay.DegreesMinutesSeconds:
@@ -311,5 +336,81 @@ namespace AdvancedAtmosphereToolsRedux
                     return string.Format("{0:F2}{1}", deg, Degreesstr);
             }
         }
+
+        //make things a little easier to read
+        public enum LonLatAxis
+        {
+            Lat = 0,
+            Lon = 1
+        }
+        #endregion
+
+        #region windadjustedmarkers
+        void LateUpdate()
+        {
+            if (FlightGlobals.fetch != null && FlightGlobals.ready && FlightGlobals.speedDisplayMode == FlightGlobals.SpeedDisplayModes.Surface && Settings.AdjustedIndicatorsEnabled)
+            {
+                Vessel activevessel = FlightGlobals.ActiveVessel;
+                AtmoToolsRedux_VesselHandler VH = AtmoToolsRedux_VesselHandler.GetVesselHandler(activevessel);
+                if (activevessel != null && VH != null)
+                {
+                    Vector3 windvec = VH.InternalAppliedWind;
+                    if (activevessel.mainBody.atmosphere && activevessel.altitude <= activevessel.mainBody.atmosphereDepth && windvec.IsFinite() && windvec.magnitude >= 0.5f)
+                    {
+                        if (navBall == null || progradewind == null || retrogradewind == null)
+                        {
+                            navBall = FindObjectOfType<NavBall>();
+
+                            //set up the indicators.
+                            progradewind = Instantiate(navBall.progradeVector.gameObject);
+                            progradewind.transform.parent = navBall.progradeVector.parent;
+                            progradewind.transform.position = navBall.progradeVector.position;
+
+                            retrogradewind = Instantiate(navBall.retrogradeVector.gameObject);
+                            retrogradewind.transform.parent = navBall.retrogradeVector.parent;
+                            retrogradewind.transform.position = navBall.retrogradeVector.position;
+
+                            progrademat = progradewind.GetComponent<MeshRenderer>().materials[0];
+                            retrogrademat = retrogradewind.GetComponent<MeshRenderer>().materials[0];
+                        }
+                        ResizeIndicators();
+
+                        progradewind.transform.localScale = navBallLocalScale;
+                        retrogradewind.transform.localScale = navBallLocalScale;
+
+                        Vector3 srfv = FlightGlobals.ship_srfVelocity;
+                        Vector3 displayV = srfv - windvec;
+                        Vector3 displayVnormalized = displayV / displayV.magnitude;
+
+                        bool vthresholdmet = srfv.magnitude > navBall.VectorVelocityThreshold;
+
+                        float opacity1 = Mathf.Clamp01(Vector3.Dot(progradewind.transform.localPosition.normalized, Vector3.forward));
+                        progrademat.SetFloat("_Opacity", opacity1);
+                        progrademat.SetColor("_TintColor", Settings.ProgradeMarkerColor);
+                        progradewind.SetActive(progradewind.transform.localPosition.z > navBall.VectorUnitCutoff && vthresholdmet);
+                        progradewind.transform.localPosition = navBall.attitudeGymbal * (displayVnormalized * navBall.VectorUnitScale);
+
+                        float opacity2 = Mathf.Clamp01(Vector3.Dot(retrogradewind.transform.localPosition.normalized, Vector3.forward));
+                        retrogrademat.SetFloat("_Opacity", opacity2);
+                        retrogrademat.SetColor("_TintColor", Settings.ProgradeMarkerColor);
+                        retrogradewind.SetActive(retrogradewind.transform.localPosition.z > navBall.VectorUnitCutoff && vthresholdmet);
+                        retrogradewind.transform.localPosition = navBall.attitudeGymbal * (-displayVnormalized * navBall.VectorUnitScale);
+
+                        return;
+                    }
+                }
+            }
+
+            progradewind?.SetActive(false);
+            retrogradewind?.SetActive(false);
+        }
+
+        void ResizeIndicators()
+        {
+            float navballDefaultSize = 44f * GameSettings.UI_SCALE_NAVBALL;
+            navBallLocalScale = new Vector3(navballDefaultSize, navballDefaultSize, navballDefaultSize);
+        }
+
+        #endregion
     }
 }

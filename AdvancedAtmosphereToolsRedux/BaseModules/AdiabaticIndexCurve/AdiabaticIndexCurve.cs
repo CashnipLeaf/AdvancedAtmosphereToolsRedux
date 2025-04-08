@@ -10,6 +10,8 @@ namespace AdvancedAtmosphereToolsRedux.BaseModules.AdiabaticIndexCurve
         
         public AdiabaticIndexCurve() { }
 
+        public void Initialize() { }
+
         public double GetBaseAdiabaticIndex(double lon, double lat, double alt, double time, double trueanomaly, double eccentricity) => (double)BaseAdiabaticIndexCurve.Evaluate((float)alt);
     }
 }
